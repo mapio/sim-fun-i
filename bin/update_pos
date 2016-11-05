@@ -1,6 +1,6 @@
 #!/bin/bash
 
-PYTHONPATH=vendor
+PYTHONPATH=./vendor
 
 for po in ./src/pos/*.po; do
 	bn=${po##*/}

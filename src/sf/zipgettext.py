@@ -16,4 +16,4 @@ def translation( lang ):
 	else:
 		return GNUTranslations( BytesIO( mo ) )
 
-DEFAULT_GETTEXT = translation( getdefaultlocale()[0][:2] )
+DEFAULT_GETTEXT = translation( getdefaultlocale()[0][:2] ).gettext
