@@ -1,2 +1,7 @@
+from locale import getdefaultlocale
+
+from sf.zipgettext import DEFAULT_GETTEXT
+_ = DEFAULT_GETTEXT.gettext
+
 def main():
-    pass
+    print _( "How fine is run" )

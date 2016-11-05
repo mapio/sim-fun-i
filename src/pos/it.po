@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: SimFunY 0.1beta\n"
 "Report-Msgid-Bugs-To: massimo.santini@unimi.it\n"
-"POT-Creation-Date: 2016-11-05 16:10+0100\n"
+"POT-Creation-Date: 2016-11-05 16:22+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: Massimo Santini <massimo.santini@unimi.it>\n"
 "Language: it\n"
@@ -18,4 +18,8 @@ msgstr ""
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Generated-By: Babel 2.3.4\n"
+
+#: src/sf/run.py:9
+msgid "How fine is run"
+msgstr "Come sto bene"
 
