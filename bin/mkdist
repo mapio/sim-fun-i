@@ -1,0 +1,53 @@
+#!/bin/bash -e
+
+echocol() { echo -e "\033[31m$@...\033[0m " >&2; }
+
+if [ -z "$1" ]; then
+    exec >/dev/null
+fi
+
+echocol "Setup dirs"
+
+tempdir=$(mktemp -d /tmp/sf-XXXXXXXXX) || exit 1
+
+mkdir -p $tempdir/dist
+mkdir -p ./vendor
+
+echocol "Vendorizing [begin]"
+if [ ! -d ./vendor/colorama ]; then
+	echocol "Getting colorama"
+	curl -sL https://codeload.github.com/tartley/colorama/tar.gz/0.3.7 | tar -C ./vendor --strip 1 --wildcards -zxvf - '*/colorama'
+fi
+if [ ! -r ./vendor/babel ]; then
+	echocol "Getting pybabel"
+	curl -sL https://github.com/python-babel/babel/archive/2.3.4.tar.gz | tar -C ./vendor --strip 1 --wildcards -zxvf - '*/babel'
+fi
+echocol "Vendorizing [end]"
+
+echocol "Copying source files to dist"
+
+cp -rv ./src/{sf,__main__.py} $tempdir/dist
+cp -rv ./vendor/* $tempdir/dist
+
+echocol "Compiling and removing source files"
+
+( cd $tempdir/dist; python -m compileall . )
+find $tempdir/dist -name \*.py -exec rm {} \;
+
+echocol "Compiling language files"
+
+mkdir $tempdir/dist/sf/mos
+for po in ./src/pos/*.po; do
+	bn=${po##*/}
+	mo=$tempdir/dist/sf/mos/${bn%.po}.mo
+	PYTHONPATH=./vendor python vendor/babel/messages/frontend.py compile -f -i $po -o $mo 2>&1
+done
+
+echocol "Preparing zip file"
+
+( cd $tempdir/dist;  zip -9r $tempdir/sf.zip . )
+echo '#!/usr/bin/env python' > $(pwd)/bin/sf
+cat $tempdir/sf.zip >> $(pwd)/bin/sf
+chmod u+rx $(pwd)/bin/sf
+
+rm -rf $tempdir

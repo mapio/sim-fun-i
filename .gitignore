@@ -1,0 +1,4 @@
+vendor
+bin/sf
+*.mo
+*.pot
