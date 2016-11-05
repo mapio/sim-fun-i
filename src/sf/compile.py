@@ -1,5 +1,9 @@
+from sf.lang import JavaLang
+
 from sf.zipgettext import DEFAULT_GETTEXT
 _ = DEFAULT_GETTEXT
 
 def main():
-    print _( "How fine is compile" )
+    jl = JavaLang('.')
+    result = jl.compile()
+    if result.returncode: print result.stderr

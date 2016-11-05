@@ -7,5 +7,6 @@ if __name__ == '__main__':
         import_module( 'sf.{0}'.format( argv.pop( 1 ) ) ).main()
     except ( IndexError, ImportError ):
         print 'usage: sf {compile,run,test} ...'
+        raise
     except:
         raise
