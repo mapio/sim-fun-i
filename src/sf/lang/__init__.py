@@ -7,7 +7,6 @@ import subprocess
 from threading import Timer
 
 Result = namedtuple('Result','returncode,stdout,stderr,exception')
-TIMEOUT = 'TIMEOUT'
 
 class CompilationException(Exception):
     pass
@@ -57,6 +56,7 @@ class Lang(object):
     INPUT_FMT = 'input-{}.txt'
     ARGS_FMT = 'args-{}.txt'
     OUTPUT_FMT = 'output-{}.txt'
+    ACTUAL_FMT = 'actual-{}.txt'
 
     def __init__(self, path):
         self.NAME = type(self).__name__
@@ -100,6 +100,7 @@ class Lang(object):
             result = execute(self.run_command(), TEST_TIMEOUT, args_file, input_file)
             results.append(result)
             if result.exception or result.returncode: break
+            with open(self.ACTUAL_FMT.format(case), 'w') as f: f.write(result.stdout)
         return results
 
 from sf.lang.java import JavaLang
