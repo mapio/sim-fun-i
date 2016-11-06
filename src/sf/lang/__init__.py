@@ -17,7 +17,7 @@ class ExecutionException(Exception):
 class TimeputException(ExecutionException):
     pass
 
-def execute(cmd, timeout = 0, args_file = None, input_file = None):
+def execute(cmd, timeout = 0, args_file = None, input_file = None, cwd = None):
     if args_file:
         with open(args_file, 'rU') as f: args = split(f.read())
     else:
