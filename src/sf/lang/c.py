@@ -9,5 +9,5 @@ class CLang(Lang):
         super(CLang, self).__init__(path)
     def compile(self):
         return execute(['gcc', '-o', 'soluzione'] + self.sources)
-    def run(self, args = None):
-        return execute(['soluzione'] + args)
+    def run_command(self):
+        return ['./soluzione']

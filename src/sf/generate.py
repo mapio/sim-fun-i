@@ -10,5 +10,5 @@ _ = DEFAULT_GETTEXT
 def main():
     lang = autodetect_language('.')
     stderr.write(Fore.BLUE + _('Using {} processor…\n').format(lang.NAME) + Style.RESET_ALL)
-    results = lang.test()
-    print results
+    cases = lang.generate('.')
+    stderr.write(Fore.BLUE + _('Generated cases: {}\n').format(', '.join(sorted(cases))) + Style.RESET_ALL)

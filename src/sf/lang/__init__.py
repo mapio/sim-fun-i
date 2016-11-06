@@ -9,6 +9,15 @@ from threading import Timer
 Result = namedtuple('Result','returncode,stdout,stderr,exception')
 TIMEOUT = 'TIMEOUT'
 
+class CompilationException(Exception):
+    pass
+
+class ExecutionException(Exception):
+    pass
+
+class TimeputException(ExecutionException):
+    pass
+
 def execute(cmd, timeout = 0, args_file = None, input_file = None):
     if args_file:
         with open(args_file, 'rU') as f: args = split(f.read())
@@ -30,7 +39,7 @@ def execute(cmd, timeout = 0, args_file = None, input_file = None):
             if timer.is_alive():
                 timer.cancel()
                 return Result(process.returncode, stdout, stderr, None)
-            return Result(None, None, None, exception = TIMEOUT)
+            return Result(None, None, None, exception = TimeputException)
         finally:
             timer.cancel()
     else:
@@ -40,11 +49,17 @@ def execute(cmd, timeout = 0, args_file = None, input_file = None):
 TEST_TIMEOUT = 1
 
 class Lang(object):
+
+    INPUT_GLOB = 'input-*.txt'
+    ARGS_GLOB = 'args-*.txt'
     OUTPUT_GLOB = 'output-*.txt'
-    TEST_NUM_RE = recompile(r'output-(\d+).txt')
+    TEST_NUM_RE = recompile(r'(?:output|input|args)-(.+)\.txt')
     INPUT_FMT = 'input-{}.txt'
     ARGS_FMT = 'args-{}.txt'
+    OUTPUT_FMT = 'output-{}.txt'
+
     def __init__(self, path):
+        self.NAME = type(self).__name__
         self.path = path
         self.sources = glob(self.SOURCES_GLOB)
         main_source = []
@@ -54,6 +69,25 @@ class Lang(object):
                     if self.MAIN_SOURCE_RE.search(line):
                         main_source.append(source)
         self.main_source = main_source[0] if len(main_source) == 1 else None
+
+    def run(self, args = None):
+        return execute(self.run_command() + args)
+
+    def generate(self, dest_path):
+        self.compile()
+        cases = set()
+        for case in glob(self.INPUT_GLOB) + glob(self.ARGS_GLOB):
+            cases.add( self.TEST_NUM_RE.match(case).group(1) )
+        for case in cases:
+            input_file = self.INPUT_FMT.format(case)
+            if not isfile(input_file): input_file = None
+            args_file = self.ARGS_FMT.format(case)
+            if not isfile(args_file): args_file = None
+            result = execute(self.run_command(), TEST_TIMEOUT, args_file, input_file)
+            if result.exception or result.returncode: raise ExecutionException(result.exception)
+            with open(self.OUTPUT_FMT.format(case), 'w') as f: f.write(result.stdout)
+        return cases
+
     def test(self, halt_on_error = True):
         self.compile()
         results = []
@@ -63,9 +97,14 @@ class Lang(object):
             if not isfile(input_file): input_file = None
             args_file = self.ARGS_FMT.format(case)
             if not isfile(args_file): args_file = None
-            result = execute(['java', self.main_class], TEST_TIMEOUT, args_file, input_file)
+            result = execute(self.run_command(), TEST_TIMEOUT, args_file, input_file)
             results.append(result)
             if result.exception or result.returncode: break
         return results
 
 from sf.lang.java import JavaLang
+from sf.lang.c import CLang
+
+def autodetect_language(path):
+    for cls in JavaLang, CLang:
+        if glob(cls.SOURCES_GLOB): return cls(path)
