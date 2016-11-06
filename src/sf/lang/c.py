@@ -8,6 +8,6 @@ class CLang(Lang):
     def __init__(self, path):
         super(CLang, self).__init__(path)
     def compile(self):
-        return execute(['gcc', '-o', 'soluzione'] + self.sources)
+        return execute(['gcc', '-o', 'soluzione'] + self.sources, cwd = self.path)
     def run_command(self):
         return ['./soluzione']

@@ -8,7 +8,7 @@ from sf.zipgettext import DEFAULT_GETTEXT
 _ = DEFAULT_GETTEXT
 
 def main():
-    lang = autodetect_language('.')
+    lang = autodetect_language()
     result = lang.run(argv[1:])
     if result.exception:
         stderr.write(Fore.RED + _('Exception raised during execution:\n') + Style.RESET_ALL)

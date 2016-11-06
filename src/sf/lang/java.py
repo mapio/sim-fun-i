@@ -9,6 +9,6 @@ class JavaLang(Lang):
         super(JavaLang, self).__init__(path)
         self.main_class = self.main_source.split('.')[0] if self.main_source else None
     def compile(self):
-        return execute(['javac'] + self.sources)
+        return execute(['javac'] + self.sources, cwd = self.path)
     def run_command(self):
         return ['java', self.main_class]

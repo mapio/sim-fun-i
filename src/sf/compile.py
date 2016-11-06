@@ -8,7 +8,7 @@ from sf.zipgettext import DEFAULT_GETTEXT
 _ = DEFAULT_GETTEXT
 
 def main():
-    lang = autodetect_language('.')
+    lang = autodetect_language()
     stderr.write(Fore.BLUE + _('Using {} processor…\n').format(lang.NAME) + Style.RESET_ALL)
     result = lang.compile()
     if result.returncode:
