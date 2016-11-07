@@ -1,3 +1,4 @@
+from collections import Mapping
 from itertools import chain
 from glob import glob
 from pipes import quote
@@ -52,6 +53,11 @@ class TestCase(object):
         else:
             self.actual = None
 
+    def fill(self, solution, what):
+        result = solution.run(self.args, self.input)
+        if result.exception or result.returncode: raise ExecutionException(result.exception)
+        setattr(self, what, result.stdout)
+
     def write(self, path, overwrite = False):
         if self.input is not None:
             input_file = join(path,self.INPUT_FMT.format(self.name))
@@ -75,9 +81,9 @@ class TestCase(object):
         args = ', '.join(map(_encode, self.args)) if self.args else ''
         return 'Path: {}\n\nName: {}\n\nInput:\n{}\nArgs: {}\n\nOutput:\n{}\nActual:\n{}\n'.format(self.path, self.name, _encode(self.input), args, _encode(self.output), _encode(self.actual))
 
-class TestCases(object):
+class TestCases(Mapping):
 
-    def __init__(self, path):
+    def __init__(self, path = '.'):
         cases_paths =  chain(*map(glob,
             (join(path,TestCase.INPUT_GLOB), join(path,TestCase.ARGS_GLOB), join(path,TestCase.OUTPUT_GLOB), join(path,TestCase.ACTUAL_GLOB))
         ))
@@ -86,13 +92,19 @@ class TestCases(object):
             names.add(TestCase.TEST_NUM_RE.match(basename(case_path)).group(1))
         self.cases = dict((name, TestCase(path,name)) for name in names)
 
+    def __getitem__(self, key):
+        return self.cases[key]
+
+    def __len__(self):
+        return len(self.cases)
+
+    def __iter__(self):
+        return iter(self.cases)
+
+    def fill(self, solution, what):
+        for case in self.cases.values():
+            case.fill(solution, what)
+
     def write(self, path, overwrite = False):
         for case in self.cases.values():
             case.write(path, overwrite)
-
-    def __iter__(self):
-        return iter(self.cases.items())
-
-if __name__ == '__main__':
-    tc = TestCases('.')
-    tc.write('/tmp/out', True)
