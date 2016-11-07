@@ -26,8 +26,10 @@ def main():
     if result.exception:
         stderr.write(Fore.RED + _('Exception raised during execution:\n') + Style.RESET_ALL)
         stderr.write(result.exception)
-    elif result.returncode:
+        exit(1)
+    if result.returncode:
         stderr.write(Fore.RED + _('Execution returned non-zero exit code:\n') + Style.RESET_ALL)
         stderr.write(result.stderr)
-    else:
-        print result.stdout,
+        exit(result.returncode)
+
+    print result.stdout,
