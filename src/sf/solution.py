@@ -8,12 +8,6 @@ from threading import Timer
 
 Result = namedtuple('Result','returncode,stdout,stderr,exception')
 
-class SourceNotFoundException(Exception):
-    pass
-
-class CompilationException(Exception):
-    pass
-
 class ExecutionException(Exception):
     pass
 
@@ -76,4 +70,4 @@ from sf.lang import JavaSolution, CSolution
 def autodetect_solution(path = '.'):
     for cls in JavaSolution, CSolution:
         if glob(join(path,cls.SOURCES_GLOB)): return cls(path)
-    raise SourceNotFoundException()
+    return None

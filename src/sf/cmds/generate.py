@@ -5,7 +5,7 @@ from sys import argv, stderr, exit
 
 from colorama import Fore, Style
 
-from sf.solution import autodetect_solution, SourceNotFoundException, ExecutionException
+from sf.solution import autodetect_solution, ExecutionException
 from sf.testcases import TestCases
 
 from sf.zipgettext import DEFAULT_GETTEXT
@@ -22,9 +22,8 @@ def main():
     if args.cases_dir is None: args.cases_dir = args.solution_dir
     if args.output_dir is None: args.output_dir = args.cases_dir
 
-    try:
-        solution = autodetect_solution(args.solution_dir)
-    except SourceNotFoundException:
+    solution = autodetect_solution(args.solution_dir)
+    if solution is None:
         stderr.write(Fore.RED + _('No source file found!\n') + Style.RESET_ALL)
         exit(1)
     stderr.write(Fore.BLUE + _('Using processor: {}\n').format(solution.NAME) + Style.RESET_ALL)
