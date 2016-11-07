@@ -13,13 +13,14 @@ _ = DEFAULT_GETTEXT
 
 def main():
     parser = ArgumentParser( prog = 'sf test' )
-    parser.add_argument( '--solution-dir', '-s', help = 'The directory where the solution is to be found.', default = '.' )
-    parser.add_argument( '--cases-dir', '-c', help = 'The directory where the test cases are to be found.' )
-    parser.add_argument( '--actual-dir', '-o', help = 'The direcotry where to write the generated actual files.', default = '.' )
-    parser.add_argument( '--no-overwrite', '-n', help = 'Whether to overwrite the actual files, if present.', default = False, action = 'store_true' )
-    parser.add_argument( '--verbose', '-v', help = 'Whether to give verbose output.', default = False, action = 'store_true' )
+    parser.add_argument('--solution-dir', '-s', help = 'The directory where the solution is to be found.', default = '.')
+    parser.add_argument('--cases-dir', '-c', help = 'The directory where the test cases are to be found.')
+    parser.add_argument('--actual-dir', '-o', help = 'The direcotry where to write the generated actual files.', default = '.')
+    parser.add_argument('--no-overwrite', '-n', help = 'Whether to overwrite the actual files, if present.', default = False, action = 'store_true')
+    parser.add_argument('--verbose', '-v', help = 'Whether to give verbose output.', default = False, action = 'store_true')
     args = parser.parse_args()
     if args.cases_dir is None: args.cases_dir = args.solution_dir
+    if args.actual_dir is None: args.actual_dir = args.cases_dir
 
     try:
         solution = autodetect_solution(args.solution_dir)

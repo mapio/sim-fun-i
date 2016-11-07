@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: SimFunY 0.1beta\n"
 "Report-Msgid-Bugs-To: massimo.santini@unimi.it\n"
-"POT-Creation-Date: 2016-11-07 18:48+0100\n"
+"POT-Creation-Date: 2016-11-07 20:13+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: Massimo Santini <massimo.santini@unimi.it>\n"
 "Language: it\n"
@@ -23,12 +23,12 @@ msgstr ""
 msgid "Available subcommands: {}\n"
 msgstr "Comandi disponibili: {}\n"
 
-#: src/sf/cmds/compile.py:21 src/sf/cmds/generate.py:27 src/sf/cmds/run.py:22
-#: src/sf/cmds/test.py:27
+#: src/sf/cmds/compile.py:21 src/sf/cmds/generate.py:28 src/sf/cmds/run.py:22
+#: src/sf/cmds/test.py:28
 msgid "No source file found!\n"
 msgstr "Nessun file sorgente trovato!\n"
 
-#: src/sf/cmds/compile.py:24 src/sf/cmds/generate.py:31 src/sf/cmds/test.py:31
+#: src/sf/cmds/compile.py:24 src/sf/cmds/generate.py:32 src/sf/cmds/test.py:32
 msgid "Using processor: {}\n"
 msgstr "Processore utilizzato: {}\n"
 
@@ -40,15 +40,15 @@ msgstr "Sono presenti errori di compilazione:\n"
 msgid "Succesfully compiled sources: {}\n"
 msgstr "Sorgenti compilati con successo: {}\n"
 
-#: src/sf/cmds/generate.py:36 src/sf/cmds/test.py:36
+#: src/sf/cmds/generate.py:37 src/sf/cmds/test.py:37
 msgid "Execution returned the following errors:\n"
 msgstr "L'esecuzione ha dato i seguenti errori:\n"
 
-#: src/sf/cmds/generate.py:41
+#: src/sf/cmds/generate.py:42
 msgid "Generated output for cases: {}\n"
 msgstr "Output generato per i casi: {}\n"
 
-#: src/sf/cmds/generate.py:42 src/sf/cmds/test.py:42
+#: src/sf/cmds/generate.py:43 src/sf/cmds/test.py:43
 msgid ""
 "Written files:\n"
 "\t{}\n"
@@ -64,7 +64,7 @@ msgstr "Si è presentata una eccezione durante l'esecuzione:\n"
 msgid "Execution returned non-zero exit code:\n"
 msgstr "L'esecuzione ha dato un valor di uscita non nullo:\n"
 
-#: src/sf/cmds/test.py:41
+#: src/sf/cmds/test.py:42
 msgid "Generated actual for cases: {}\n"
 msgstr "File dello studente generati per i casi: {}\n"
 

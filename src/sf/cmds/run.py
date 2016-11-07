@@ -12,7 +12,7 @@ _ = DEFAULT_GETTEXT
 
 def main():
     parser = ArgumentParser( prog = 'sf run' )
-    parser.add_argument( '--solution-dir', '-s', help = 'The directory where the solution is to be found.', default = '.' )
+    parser.add_argument('--solution-dir', '-s', help = 'The directory where the solution is to be found.', default = '.')
     parser.add_argument('args', nargs = REMAINDER)
     args = parser.parse_args()
 

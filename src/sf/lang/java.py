@@ -8,6 +8,6 @@ class JavaSolution(Solution):
     def __init__(self, path):
         super(JavaSolution, self).__init__(path)
         self.main_class = self.main_source.split('.')[0] if self.main_source else None
-        self.run_command = ['java', self.main_class]
+        self.run_command = ['java', '-Duser.language=ROOT', self.main_class]
     def compile(self):
         return execute(['javac'], args = self.sources, cwd = self.path)
