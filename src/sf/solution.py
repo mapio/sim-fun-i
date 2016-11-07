@@ -69,7 +69,7 @@ class Solution(object):
         self.main_source = main_source[0] if len(main_source) == 1 else None
 
     def run(self, args = None, input_data = None, timeout = 0):
-        return execute(self.run_command(), args, input_data, timeout = timeout, cwd = self.path)
+        return execute(self.run_command, args, input_data, timeout = timeout, cwd = self.path)
 
 from sf.lang import JavaSolution, CSolution
 

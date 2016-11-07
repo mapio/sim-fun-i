@@ -7,6 +7,8 @@ import codecs
 from os.path import join, isfile, basename
 import re
 
+from sf.solution import ExecutionException
+
 DEFAULT_ENCODING = 'utf-8'
 
 def _encode(u):
@@ -55,27 +57,36 @@ class TestCase(object):
 
     def fill(self, solution, what):
         result = solution.run(self.args, self.input)
-        if result.exception or result.returncode: raise ExecutionException(result.exception)
+        if result.exception:
+            raise ExecutionException(result.exception)
+        if result.returncode:
+            raise ExecutionException(result.stderr)
         setattr(self, what, result.stdout)
 
     def write(self, path, overwrite = False):
+        written = []
         if self.input is not None:
             input_file = join(path,self.INPUT_FMT.format(self.name))
             if overwrite or not isfile(input_file):
                 with codecs.open(input_file, 'w', DEFAULT_ENCODING) as f: f.write(self.input)
+                written.append(basename(input_file))
         if self.args is not None:
             args_file = join(path,self.ARGS_FMT.format(self.name))
             if overwrite or not isfile(args_file):
                 args = _decode(' '.join(map(quote,map(_encode,self.args))) + '\n')
                 with codecs.open(args_file, 'w', DEFAULT_ENCODING) as f: args = f.write(args)
+                written.append(basename(args_file))
         if self.output is not None:
             output_file = join(path,self.OUTPUT_FMT.format(self.name))
             if overwrite or not isfile(output_file):
                 with codecs.open(output_file, 'w', DEFAULT_ENCODING) as f: f.write(self.output)
+                written.append(basename(output_file))
         if self.actual is not None:
             actual_file = join(path,self.ACTUAL_FMT.format(self.name))
             if overwrite or not isfile(actual_file):
                 with codecs.open(actual_file, 'w', DEFAULT_ENCODING) as f: f.write(self.actual)
+                written.append(basename(actual_file))
+        return written
 
     def __str__(self):
         args = ', '.join(map(_encode, self.args)) if self.args else ''
@@ -106,5 +117,7 @@ class TestCases(Mapping):
             case.fill(solution, what)
 
     def write(self, path, overwrite = False):
+        written = []
         for case in self.cases.values():
-            case.write(path, overwrite)
+            written.extend(case.write(path, overwrite))
+        return written

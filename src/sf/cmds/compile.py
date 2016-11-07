@@ -24,7 +24,7 @@ def main():
     stderr.write(Fore.BLUE + _('Using {} processor…\n').format(solution.NAME) + Style.RESET_ALL)
     result = solution.compile()
     if result.returncode:
-        stderr.write(_('Compilation errors encountered:'))
-        print result.stderr,
-    else:
-        stderr.write(Fore.BLUE + _('Succesfully compiled sources: {}\n').format(', '.join(solution.sources)) + Style.RESET_ALL)
+        stderr.write(Fore.RED + _('Compilation errors encountered:\n') + Style.RESET_ALL)
+        stderr.write(result.stderr)
+        exit(1)
+    stderr.write(Fore.BLUE + _('Succesfully compiled sources: {}\n').format(', '.join(solution.sources)) + Style.RESET_ALL)
