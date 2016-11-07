@@ -27,17 +27,16 @@ def main():
     except SourceNotFoundException:
         stderr.write(Fore.RED + _('No source file found!\n') + Style.RESET_ALL)
         exit(1)
-
-    cases = TestCases(args.cases_dir)
     stderr.write(Fore.BLUE + _('Using processor: {}\n').format(solution.NAME) + Style.RESET_ALL)
 
+    cases = TestCases(args.cases_dir)
     try:
         cases.fill(solution, 'actual')
     except ExecutionException, e:
         stderr.write(Fore.RED + _('Execution returned the following errors:\n') + Style.RESET_ALL)
         stderr.write(str(e))
         exit(1)
+    stderr.write(Fore.BLUE + _('Generated actual for cases: {}\n').format(', '.join(sorted(cases.keys()))) + Style.RESET_ALL)
 
     written = cases.write(args.actual_dir, not args.no_overwrite)
-    stderr.write(Fore.BLUE + _('Generated actual for cases: {}\n').format(', '.join(sorted(cases.keys()))) + Style.RESET_ALL)
     if args.verbose: stderr.write(_('Written files:\n\t{}\n').format(',\n\t'.join(written)))
