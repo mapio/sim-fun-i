@@ -1,12 +1,4 @@
-from importlib import import_module
-from sys import argv
-from os.path import dirname
+from sf.cmds import main
 
 if __name__ == '__main__':
-    try:
-        import_module( 'sf.{0}'.format( argv.pop( 1 ) ) ).main()
-    except ( IndexError, ImportError ):
-        print 'usage: sf {compile,run,test} ...'
-        raise
-    except:
-        raise
+    main()
