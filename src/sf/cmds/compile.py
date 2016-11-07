@@ -21,7 +21,7 @@ def main():
         stderr.write(Fore.RED + _('No source file found!\n') + Style.RESET_ALL)
         exit(1)
 
-    stderr.write(Fore.BLUE + _('Using {} processor…\n').format(solution.NAME) + Style.RESET_ALL)
+    stderr.write(Fore.BLUE + _('Using processor: {}\n').format(solution.NAME) + Style.RESET_ALL)
     result = solution.compile()
     if result.returncode:
         stderr.write(Fore.RED + _('Compilation errors encountered:\n') + Style.RESET_ALL)

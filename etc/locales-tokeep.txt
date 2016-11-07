@@ -1,3 +1,4 @@
+root.dat
 en.dat
 en_US.dat
 en_US_POSIX.dat

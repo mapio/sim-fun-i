@@ -28,7 +28,7 @@ def main():
         exit(1)
 
     cases = TestCases(args.cases_dir)
-    stderr.write(Fore.BLUE + _('Using {} processor…\n').format(solution.NAME) + Style.RESET_ALL)
+    stderr.write(Fore.BLUE + _('Using processor: {}\n').format(solution.NAME) + Style.RESET_ALL)
 
     try:
         cases.fill(solution, 'output')
