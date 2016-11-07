@@ -29,7 +29,14 @@ def main():
 
     cases = TestCases(args.cases_dir)
     stderr.write(Fore.BLUE + _('Using {} processor…\n').format(solution.NAME) + Style.RESET_ALL)
-    cases.fill(solution, 'output')
+
+    try:
+        cases.fill(solution, 'output')
+    except ExecutionException, e:
+        stderr.write(Fore.RED + _('Execution returned the following errors:\n') + Style.RESET_ALL)
+        stderr.write(str(e))
+        exit(1)
+
     written = cases.write(args.output_dir, not args.no_overwrite)
     stderr.write(Fore.BLUE + _('Generated output for cases: {}\n').format(', '.join(sorted(cases.keys()))) + Style.RESET_ALL)
     if args.verbose: stderr.write(_('Written files:\n\t{}\n').format(',\n\t'.join(written)))
