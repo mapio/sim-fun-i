@@ -22,7 +22,7 @@ if [ ! -r ./vendor/babel ]; then
 	echocol "Getting pybabel"
 	curl -sL https://github.com/python-babel/babel/archive/2.3.4.tar.gz | tar -C ./vendor --strip 1 --wildcards -zxvf - '*/babel' '*/scripts' '*/cldr'
     (cd vendor && python scripts/download_import_cldr.py)
-    rm -rf vendor/{scripts,cldr}
+    rm -rf vendor/{scripts,cldr,docs}
     (cd vendor/babel/locale-data && ls -1 | grep -vf ../../../etc/locales-tokeep.txt) | while read lang; do
          rm -f "vendor/babel/locale-data/$lang"
     done
