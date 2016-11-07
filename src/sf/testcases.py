@@ -83,9 +83,11 @@ class TestCase(object):
         return filter(None, (self._write(kind, path, overwrite) for kind in TestCase.KINDS))
 
     def __str__(self):
-        args = ', '.join(map(_encode, self.args)) if self.args else ''
-        rest = '\n'.join('{}:\n{}'.format(kind.capitalize(), _encode(getattr(self, kind)).rstrip()) for kind in TestCase.KINDS[1:] if getattr(self,kind) is not None)
-        return 'Path: {}\nName: {}\nArgs: {}\n'.format(self.path, self.name, args) + rest
+        parts = ['Path: ' + self.path, 'Name: ' + self.name]
+        if self.args is not None:
+            parts.append('Args: ' + ', '.join(map(_encode, self.args)))
+        parts.extend('{}:\n{}'.format(kind.capitalize(), _encode(getattr(self, kind)).rstrip()) for kind in TestCase.KINDS[1:] if getattr(self,kind) is not None)
+        return '\n'.join(parts)
 
 class TestCases(Mapping):
 
