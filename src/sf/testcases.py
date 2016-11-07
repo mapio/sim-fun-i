@@ -1,11 +1,13 @@
+import codecs
 from collections import Mapping
+from difflib import context_diff, IS_CHARACTER_JUNK
 from itertools import chain
 from glob import glob
-from pipes import quote
-from shlex import split
-import codecs
 from os.path import join, isfile, basename
+from pipes import quote
 import re
+from shlex import split
+from textwrap import dedent
 
 from sf.solution import ExecutionException
 
@@ -17,6 +19,10 @@ def _encode(u):
 
 def _decode(s):
     return s.decode(DEFAULT_ENCODING)
+
+def _normalized_lines(u):
+    if not u.endswith('\n'): u += '\n'
+    return list(map(lambda _: _.rstrip() + '\n', dedent(u).splitlines(True)))
 
 class TestCase(object):
 
@@ -46,6 +52,11 @@ class TestCase(object):
         if result.returncode:
             raise ExecutionException(result.stderr)
         setattr(self, kind, result.stdout)
+        if kind == 'actual':
+            self.diffs = ''.join(context_diff(
+                _normalized_lines(self.output), _normalized_lines(self.actual),
+                TestCase.FORMATS['output'].format(self.name), TestCase.FORMATS['actual'].format(self.name)
+            ))
 
     def _write(self, kind, path, overwrite):
         data = getattr(self, kind)
