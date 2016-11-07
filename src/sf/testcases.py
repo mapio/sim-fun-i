@@ -27,8 +27,8 @@ class TestCase(object):
     INPUT_GLOB = 'input-*.txt'
     ARGS_GLOB = 'args-*.txt'
     OUTPUT_GLOB = 'output-*.txt'
-    ACTUAL_GLOB = 'output-*.txt'
-    TEST_NUM_RE = re.compile(r'(?:output|input|args)-(.+)\.txt')
+    ACTUAL_GLOB = 'actual-*.txt'
+    TEST_NUM_RE = re.compile(r'(?:output|input|args|actual)-(.+)\.txt')
 
     def __init__(self, path, name):
         self.path = path
