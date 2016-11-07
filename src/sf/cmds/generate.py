@@ -30,7 +30,7 @@ def main():
 
     cases = TestCases(args.cases_dir)
     try:
-        cases.fill(solution, 'output')
+        cases.fill_output(solution)
     except ExecutionException, e:
         stderr.write(Fore.RED + _('Execution returned the following errors:\n') + Style.RESET_ALL)
         stderr.write(str(e))

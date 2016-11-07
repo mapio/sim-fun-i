@@ -12,6 +12,7 @@ from textwrap import dedent
 from sf.solution import ExecutionException
 
 DEFAULT_ENCODING = 'utf-8'
+TEST_TIMEOUT = 1
 
 def _encode(u):
     if u is None: return u''
@@ -45,14 +46,25 @@ class TestCase(object):
         self.name = name
         for kind in TestCase.KINDS: self._read(kind)
 
-    def fill(self, solution, kind):
-        result = solution.run(self.args, self.input)
+    def _fill(self, solution, kind, timeout = 0):
+        result = solution.run(self.args, self.input, timeout)
         if result.exception:
-            raise ExecutionException(result.exception)
+            raise result.exception
         if result.returncode:
             raise ExecutionException(result.stderr)
         setattr(self, kind, result.stdout)
-        if kind == 'actual':
+
+    def fill_output(self, solution):
+        self.output = None
+        self._fill(solution, 'output')
+
+    def fill_actual(self, solution):
+        try:
+            self._fill(solution, 'actual', TEST_TIMEOUT)
+        except ExecutionException, e:
+            self.actual = None
+            self.errors = '[{}] {}\n'.format(type(e).__name__, str(e).rstrip())
+        else:
             self.diffs = ''.join(context_diff(
                 _normalized_lines(self.output), _normalized_lines(self.actual),
                 TestCase.FORMATS['output'].format(self.name), TestCase.FORMATS['actual'].format(self.name)
@@ -72,7 +84,8 @@ class TestCase(object):
 
     def __str__(self):
         args = ', '.join(map(_encode, self.args)) if self.args else ''
-        return 'Path: {}\n\nName: {}\n\nInput:\n{}\nArgs: {}\n\nOutput:\n{}\nActual:\n{}\n'.format(self.path, self.name, _encode(self.input), args, _encode(self.output), _encode(self.actual))
+        rest = '\n'.join('{}:\n{}'.format(kind.capitalize(), _encode(getattr(self, kind)).rstrip()) for kind in TestCase.KINDS[1:] if getattr(self,kind) is not None)
+        return 'Path: {}\nName: {}\nArgs: {}\n'.format(self.path, self.name, args) + rest
 
 class TestCases(Mapping):
 
@@ -92,9 +105,13 @@ class TestCases(Mapping):
     def __iter__(self):
         return iter(self.cases)
 
-    def fill(self, solution, what):
+    def fill_actual(self, solution):
         for case in self.cases.values():
-            case.fill(solution, what)
+            case.fill_actual(solution)
+
+    def fill_output(self, solution):
+        for case in self.cases.values():
+            case.fill_output(solution)
 
     def write(self, path, overwrite = False):
         written = []

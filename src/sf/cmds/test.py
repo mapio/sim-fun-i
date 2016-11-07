@@ -30,7 +30,7 @@ def main():
 
     cases = TestCases(args.cases_dir)
     try:
-        cases.fill(solution, 'actual')
+        cases.fill_actual(solution)
     except ExecutionException, e:
         stderr.write(Fore.RED + _('Execution returned the following errors:\n') + Style.RESET_ALL)
         stderr.write(str(e))
@@ -38,4 +38,14 @@ def main():
     stderr.write(Fore.BLUE + _('Generated actual for cases: {}\n').format(', '.join(sorted(cases.keys()))) + Style.RESET_ALL)
 
     written = cases.write(args.actual_dir, not args.no_overwrite)
-    if args.verbose: stderr.write(_('Written files:\n\t{}\n').format(',\n\t'.join(written)))
+    if args.verbose:
+        stderr.write(Fore.BLUE + _('Written files:\n') + Style.RESET_ALL)
+        stderr.write('\t' + '\n\t'.join(written) + '\n')
+
+    for case in cases.values():
+        if case.errors:
+            stderr.write(Fore.RED + _('Case {} returned the following errors:\n').format(case.name) + Style.RESET_ALL)
+            stderr.write(case.errors)
+        elif case.diffs:
+            stderr.write(Fore.RED + _('Case {} returned the following diffs:\n').format(case.name) + Style.RESET_ALL)
+            stderr.write(case.diffs)

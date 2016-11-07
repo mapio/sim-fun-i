@@ -11,7 +11,7 @@ Result = namedtuple('Result','returncode,stdout,stderr,exception')
 class ExecutionException(Exception):
     pass
 
-class TimeputException(ExecutionException):
+class TimeoutException(ExecutionException):
     pass
 
 def execute(cmd, args = None, input_data = None, timeout = 0, cwd = None):
@@ -28,7 +28,7 @@ def execute(cmd, args = None, input_data = None, timeout = 0, cwd = None):
             if timer.is_alive():
                 timer.cancel()
                 return Result(process.returncode, stdout, stderr, None)
-            return Result(None, None, None, exception = TimeputException)
+            return Result(None, None, None, exception = TimeoutException('{}s timeout exceeded'.format(timeout)))
         finally:
             timer.cancel()
     else:
