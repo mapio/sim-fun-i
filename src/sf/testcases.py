@@ -20,73 +20,44 @@ def _decode(s):
 
 class TestCase(object):
 
-    INPUT_FMT = 'input-{}.txt'
-    ARGS_FMT = 'args-{}.txt'
-    OUTPUT_FMT = 'output-{}.txt'
-    ACTUAL_FMT = 'actual-{}.txt'
-    INPUT_GLOB = 'input-*.txt'
-    ARGS_GLOB = 'args-*.txt'
-    OUTPUT_GLOB = 'output-*.txt'
-    ACTUAL_GLOB = 'actual-*.txt'
-    TEST_NUM_RE = re.compile(r'(?:output|input|args|actual)-(.+)\.txt')
+    KINDS = 'args input output actual errors diffs'.split()
+    FORMATS = dict((kind, '{}-{{}}.txt'.format(kind)) for kind in KINDS)
+    GLOBS = dict((kind, '{}-*.txt'.format(kind)) for kind in KINDS)
+    TEST_NUM_RE = re.compile(r'(?:{})-(.+)\.txt'.format('|'.join(KINDS)))
+
+    def _read(self, kind):
+        path = join(self.path, self.FORMATS[kind].format(self.name))
+        if isfile(path):
+            with codecs.open(path, 'rU', DEFAULT_ENCODING) as f: data = f.read()
+            if kind == 'args': data = map(_decode, split(_encode(data), posix=True))
+        else:
+            data = None
+        setattr(self, kind, data)
 
     def __init__(self, path, name):
         self.path = path
         self.name = name
-        input_file = join(path,self.INPUT_FMT.format(name))
-        if isfile(input_file):
-            with codecs.open(input_file, 'rU', DEFAULT_ENCODING) as f: self.input = f.read()
-        else:
-            self.input = None
-        args_file = join(path,self.ARGS_FMT.format(name))
-        if isfile(args_file):
-            with codecs.open(args_file, 'rU', DEFAULT_ENCODING) as f: args = f.read()
-            self.args = map(_decode, split(_encode(args), posix=True))
-        else:
-            self.args = None
-        output_file = join(path,self.OUTPUT_FMT.format(name))
-        if isfile(output_file):
-            with codecs.open(output_file, 'rU', DEFAULT_ENCODING) as f: self.output = f.read()
-        else:
-            self.output = None
-        actual_file = join(path,self.ACTUAL_FMT.format(name))
-        if isfile(actual_file):
-            with codecs.open(actual_file, 'rU', DEFAULT_ENCODING) as f: self.actual = f.read()
-        else:
-            self.actual = None
+        for kind in TestCase.KINDS: self._read(kind)
 
-    def fill(self, solution, what):
+    def fill(self, solution, kind):
         result = solution.run(self.args, self.input)
         if result.exception:
             raise ExecutionException(result.exception)
         if result.returncode:
             raise ExecutionException(result.stderr)
-        setattr(self, what, result.stdout)
+        setattr(self, kind, result.stdout)
+
+    def _write(self, kind, path, overwrite):
+        data = getattr(self, kind)
+        if data is None: return None
+        if kind == 'args': data = _decode(' '.join(map(quote, map(_encode, self.args))) + '\n')
+        path = join(path,self.FORMATS[kind].format(self.name))
+        if overwrite or not isfile(path):
+            with codecs.open(path, 'w', DEFAULT_ENCODING) as f: f.write(data)
+        return basename(path)
 
     def write(self, path, overwrite = False):
-        written = []
-        if self.input is not None:
-            input_file = join(path,self.INPUT_FMT.format(self.name))
-            if overwrite or not isfile(input_file):
-                with codecs.open(input_file, 'w', DEFAULT_ENCODING) as f: f.write(self.input)
-                written.append(basename(input_file))
-        if self.args is not None:
-            args_file = join(path,self.ARGS_FMT.format(self.name))
-            if overwrite or not isfile(args_file):
-                args = _decode(' '.join(map(quote,map(_encode,self.args))) + '\n')
-                with codecs.open(args_file, 'w', DEFAULT_ENCODING) as f: args = f.write(args)
-                written.append(basename(args_file))
-        if self.output is not None:
-            output_file = join(path,self.OUTPUT_FMT.format(self.name))
-            if overwrite or not isfile(output_file):
-                with codecs.open(output_file, 'w', DEFAULT_ENCODING) as f: f.write(self.output)
-                written.append(basename(output_file))
-        if self.actual is not None:
-            actual_file = join(path,self.ACTUAL_FMT.format(self.name))
-            if overwrite or not isfile(actual_file):
-                with codecs.open(actual_file, 'w', DEFAULT_ENCODING) as f: f.write(self.actual)
-                written.append(basename(actual_file))
-        return written
+        return filter(None, (self._write(kind, path, overwrite) for kind in TestCase.KINDS))
 
     def __str__(self):
         args = ', '.join(map(_encode, self.args)) if self.args else ''
@@ -95,9 +66,7 @@ class TestCase(object):
 class TestCases(Mapping):
 
     def __init__(self, path = '.'):
-        cases_paths =  chain(*map(glob,
-            (join(path,TestCase.INPUT_GLOB), join(path,TestCase.ARGS_GLOB), join(path,TestCase.OUTPUT_GLOB), join(path,TestCase.ACTUAL_GLOB))
-        ))
+        cases_paths = chain(*map(glob, (join(path, TestCase.GLOBS[kind]) for kind in TestCase.KINDS)))
         names = set()
         for case_path in cases_paths:
             names.add(TestCase.TEST_NUM_RE.match(basename(case_path)).group(1))
