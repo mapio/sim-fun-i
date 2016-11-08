@@ -32,19 +32,17 @@ class TestCase(object):
     GLOBS = dict((kind, '{}-*.txt'.format(kind)) for kind in KINDS)
     TEST_NUM_RE = re.compile(r'(?:{})-(.+)\.txt'.format('|'.join(KINDS)))
 
-    def _read(self, kind):
-        path = join(self.path, self.FORMATS[kind].format(self.name))
-        if isfile(path):
-            with codecs.open(path, 'rU', DEFAULT_ENCODING) as f: data = f.read()
-            if kind == 'args': data = map(_decode, split(_encode(data), posix=True))
-        else:
-            data = None
-        setattr(self, kind, data)
-
     def __init__(self, path, name):
-        self.path = path
         self.name = name
-        for kind in TestCase.KINDS: self._read(kind)
+        def _read(kind):
+            case_path = join(path, TestCase.FORMATS[kind].format(name))
+            if isfile(case_path):
+                with codecs.open(case_path, 'rU', DEFAULT_ENCODING) as f: data = f.read()
+                if kind == 'args': data = map(_decode, split(_encode(data), posix=True))
+            else:
+                data = None
+            setattr(self, kind, data)
+        for kind in TestCase.KINDS: _read(kind)
 
     def _fill(self, solution, kind, timeout = 0):
         result = solution.run(self.args, self.input, timeout)
@@ -70,20 +68,21 @@ class TestCase(object):
                 TestCase.FORMATS['output'].format(self.name), TestCase.FORMATS['actual'].format(self.name)
             ))
 
-    def _write(self, kind, path, overwrite):
-        data = getattr(self, kind)
-        if data is None: return None
-        if kind == 'args': data = _decode(' '.join(map(quote, map(_encode, self.args))) + '\n')
-        path = join(path,self.FORMATS[kind].format(self.name))
-        if overwrite or not isfile(path):
-            with codecs.open(path, 'w', DEFAULT_ENCODING) as f: f.write(data)
-        return basename(path)
 
     def write(self, path, overwrite = False):
-        return filter(None, (self._write(kind, path, overwrite) for kind in TestCase.KINDS))
+        def _write(kind):
+            data = getattr(self, kind)
+            if data is None: return None
+            if kind == 'args': data = _decode(' '.join(map(quote, map(_encode, self.args))) + '\n')
+            case_path = join(path, TestCase.FORMATS[kind].format(self.name))
+            if overwrite or not isfile(case_path):
+                with codecs.open(case_path, 'w', DEFAULT_ENCODING) as f: f.write(data)
+                return basename(case_path)
+            return None
+        return filter(None, (_write(kind) for kind in TestCase.KINDS))
 
     def __str__(self):
-        parts = ['Path: ' + self.path, 'Name: ' + self.name]
+        parts = [ 'Name: ' + self.name]
         if self.args is not None:
             parts.append('Args: ' + ', '.join(map(_encode, self.args)))
         parts.extend('{}:\n{}'.format(kind.capitalize(), _encode(getattr(self, kind)).rstrip()) for kind in TestCase.KINDS[1:] if getattr(self,kind) is not None)
@@ -92,6 +91,7 @@ class TestCase(object):
 class TestCases(Mapping):
 
     def __init__(self, path = '.'):
+        self.path = path
         cases_paths = chain(*map(glob, (join(path, TestCase.GLOBS[kind]) for kind in TestCase.KINDS)))
         names = set()
         for case_path in cases_paths:
