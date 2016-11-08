@@ -36,4 +36,9 @@ def main():
     stderr.write(Fore.BLUE + _('Generated output for cases: {}\n').format(', '.join(sorted(cases.keys()))) + Style.RESET_ALL)
 
     written = cases.write(args.output_dir, not args.no_overwrite)
-    if args.verbose: stderr.write(_('Written files:\n\t{}\n').format(',\n\t'.join(written)))
+    if args.verbose:
+        if written:
+            stderr.write(Fore.BLUE + _('Written files:\n') + Style.RESET_ALL)
+            stderr.write('\t' + '\n\t'.join(written) + '\n')
+        else:
+            stderr.write(Fore.BLUE + _('No files written!\n') + Style.RESET_ALL)
