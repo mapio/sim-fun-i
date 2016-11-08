@@ -39,15 +39,6 @@ TEST_TIMEOUT = 1
 
 class Solution(object):
 
-    INPUT_GLOB = 'input-*.txt'
-    ARGS_GLOB = 'args-*.txt'
-    OUTPUT_GLOB = 'output-*.txt'
-    TEST_NUM_RE = recompile(r'(?:output|input|args)-(.+)\.txt')
-    INPUT_FMT = 'input-{}.txt'
-    ARGS_FMT = 'args-{}.txt'
-    OUTPUT_FMT = 'output-{}.txt'
-    ACTUAL_FMT = 'actual-{}.txt'
-
     def __init__(self, path):
         self.NAME = type(self).__name__
         self.path = path
