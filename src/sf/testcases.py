@@ -34,13 +34,24 @@ class TestCase(object):
     GLOBS = dict((kind, '{}-*.txt'.format(kind)) for kind in KINDS)
     TEST_NUM_RE = re.compile(r'(?:{})-(.+)\.txt'.format('|'.join(KINDS)))
 
-    def __init__(self, path, name):
+    @staticmethod
+    def u2args(u):
+        return map(_decode, split(_encode(u), posix=True))
+
+    @staticmethod
+    def args2u(args):
+        return _decode(' '.join(map(quote, map(_encode, args))) + '\n')
+
+    def __init__(self, name, path = None):
         self.name = name
+        if path is None:
+            for kind in TestCase.KINDS: setattr(self, kind, None)
+            return
         for kind in TestCase.KINDS:
             case_path = join(path, TestCase.FORMATS[kind].format(name))
             if isfile(case_path):
                 with io.open(case_path, 'rU', encoding = DEFAULT_ENCODING) as f: data = f.read(MAX_BYTES_READ)
-                if kind == 'args': data = map(_decode, split(_encode(data), posix=True))
+                if kind == 'args': data = TestCase.u2args(data)
             else:
                 data = None
             setattr(self, kind, data)
@@ -74,7 +85,7 @@ class TestCase(object):
         for kind in TestCase.KINDS:
             data = getattr(self, kind)
             if data is None: continue
-            if kind == 'args': data = _decode(' '.join(map(quote, map(_encode, data))) + '\n')
+            if kind == 'args': data = TestCase.args2u(data)
             case_path = join(path, TestCase.FORMATS[kind].format(self.name))
             if overwrite or not isfile(case_path):
                 with io.open(case_path, 'w', encoding = DEFAULT_ENCODING) as f: f.write(data)
@@ -98,13 +109,17 @@ class TestCase(object):
 
 class TestCases(Mapping):
 
-    def __init__(self, path = '.'):
-        self.path = path
-        cases_paths = chain(*map(glob, (join(path, TestCase.GLOBS[kind]) for kind in TestCase.KINDS)))
-        names = set()
-        for case_path in cases_paths:
-            names.add(TestCase.TEST_NUM_RE.match(basename(case_path)).group(1))
-        self.cases = dict((name, TestCase(path,name)) for name in names)
+    def __init__(self, path_or_dict = '.'):
+        if isinstance(path_or_dict, dict):
+            self.path = '<TAR_DATA>'
+            self.cases = path_or_dict
+        else:
+            self.path = path_or_dict
+            cases_paths = chain(*map(glob, (join(path, TestCase.GLOBS[kind]) for kind in TestCase.KINDS)))
+            names = set()
+            for case_path in cases_paths:
+                names.add(TestCase.TEST_NUM_RE.match(basename(case_path)).group(1))
+            self.cases = dict((name, TestCase(name, path)) for name in names)
 
     def __getitem__(self, key):
         return self.cases[key]
@@ -132,3 +147,10 @@ class TestCases(Mapping):
     def json(self, path):
         result = [case.to_dict() for case in self.cases.values()]
         with io.open(path, 'w', encoding = DEFAULT_ENCODING) as f: f.write(dumps(result, ensure_ascii = False))
+
+    def __str__(self):
+        result = [ 'Path: {}'.format(self.path) ]
+        names = sorted(self.cases.keys())
+        for name in names:
+            result.append(str(self.cases[name]))
+        return '\n\n'.join(result)
