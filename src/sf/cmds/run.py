@@ -5,6 +5,7 @@ from sys import argv, stderr, exit
 
 from colorama import Fore, Style
 
+from sf.cmds.compile import detect_and_compile
 from sf.solution import autodetect_solution
 
 from sf.zipgettext import DEFAULT_GETTEXT
@@ -13,13 +14,11 @@ _ = DEFAULT_GETTEXT
 def main():
     parser = ArgumentParser( prog = 'sf run' )
     parser.add_argument('--solution-dir', '-s', help = 'The directory where the solution is to be found.', default = '.')
+    parser.add_argument('--force-compile', '-f', help = 'Whether to force a compilation before generating the outputs.', default = False, action = 'store_true')
     parser.add_argument('args', nargs = REMAINDER)
     args = parser.parse_args()
 
-    solution = autodetect_solution(args.solution_dir)
-    if solution is None:
-        stderr.write(Fore.RED + _('No source file found!\n') + Style.RESET_ALL)
-        exit(1)
+    solution = detect_and_compile(args.solution_dir, args.force_compile)
 
     result = solution.run(args.args)
     if result.exception:
