@@ -14,6 +14,7 @@ from sf.solution import ExecutionException
 
 DEFAULT_ENCODING = 'utf-8'
 TEST_TIMEOUT = 1
+MAX_BYTES_READ = 1024 * 1024
 
 def _encode(u):
     if u is None: return u''
@@ -38,7 +39,7 @@ class TestCase(object):
         for kind in TestCase.KINDS:
             case_path = join(path, TestCase.FORMATS[kind].format(name))
             if isfile(case_path):
-                with io.open(case_path, 'rU', encoding = DEFAULT_ENCODING) as f: data = f.read()
+                with io.open(case_path, 'rU', encoding = DEFAULT_ENCODING) as f: data = f.read(MAX_BYTES_READ)
                 if kind == 'args': data = map(_decode, split(_encode(data), posix=True))
             else:
                 data = None
