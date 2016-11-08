@@ -1,6 +1,9 @@
+from base64 import decodestring
 from collections import defaultdict
 from datetime import datetime
+from fnmatch import fnmatch
 from glob import glob
+from io import BytesIO
 from os import chmod, unlink, symlink
 from os.path import join, dirname, basename, isdir, islink
 import re
@@ -11,6 +14,8 @@ from logging import basicConfig, getLogger, DEBUG, INFO
 LOG_LEVEL = INFO
 basicConfig(format = '%(asctime)s %(levelname)s: [%(funcName)s] %(message)s', datefmt = '%Y-%m-%d %H:%M:%S', level = LOG_LEVEL)
 LOGGER = getLogger(__name__)
+
+from sf.testcases import TestCase, TestCases
 
 UID_TIMESTAMP_RE = re.compile( r'.*/(?P<uid>.+)/(?P<timestamp>[0-9]+)\.tar' )
 
@@ -51,7 +56,23 @@ class TristoMietitoreUploads(object):
     	symlink(timestamp, latest)
         return map(basename, filter(isdir, glob(join(dest_dir, '*'))))
 
-tmu = TristoMietitoreUploads('.')
-for uid in tmu.uid2timestamps.keys():
-    print uid
-    print tmu.untar(uid)
+class TristoMietitoreConfig(object):
+    def __init__(self, path):
+        config = {}
+        with open(path, 'r') as f: exec f in config
+        self.tar_data = BytesIO(decodestring(config['TAR_DATA']))
+    def cases(self, exercise):
+        self.tar_data.seek(0)
+        result = {}
+        with TarFile.open(mode = 'r', fileobj = self.tar_data ) as tf:
+            for m in tf.getmembers():
+                if m.isfile():
+                    for kind in TestCase.KINDS:
+                        if fnmatch(m.name, join(exercise, TestCase.GLOBS[kind])):
+                            name = TestCase.TEST_NUM_RE.match(basename(m.name)).group(1)
+                            data = tf.extractfile(m).read().decode('utf-8')
+                            tc = result.get(name, TestCase(name))
+                            if kind == 'args': data = TestCase.u2args(data)
+                            setattr(tc, kind, data)
+                            result[name] = tc
+        return TestCases(result)
