@@ -1,8 +1,9 @@
 import io
 from collections import Mapping
 from difflib import context_diff, IS_CHARACTER_JUNK
-from itertools import chain
 from glob import glob
+from itertools import chain
+from json import dumps
 from os.path import join, isfile, basename
 from pipes import quote
 import re
@@ -27,23 +28,21 @@ def _normalized_lines(u):
 
 class TestCase(object):
 
-    KINDS = 'args input output actual errors diffs'.split() # kept internally as unicode
+    KINDS = 'args input output actual errors diffs'.split() # kept internally as unicode
     FORMATS = dict((kind, '{}-{{}}.txt'.format(kind)) for kind in KINDS)
     GLOBS = dict((kind, '{}-*.txt'.format(kind)) for kind in KINDS)
     TEST_NUM_RE = re.compile(r'(?:{})-(.+)\.txt'.format('|'.join(KINDS)))
 
     def __init__(self, path, name):
         self.name = name
-        def _read(kind):
+        for kind in TestCase.KINDS:
             case_path = join(path, TestCase.FORMATS[kind].format(name))
             if isfile(case_path):
                 with io.open(case_path, 'rU', encoding = DEFAULT_ENCODING) as f: data = f.read()
                 if kind == 'args': data = map(_decode, split(_encode(data), posix=True))
             else:
                 data = None
-
             setattr(self, kind, data)
-        for kind in TestCase.KINDS: _read(kind)
 
     def _fill(self, solution, kind, timeout = 0):
         result = solution.run(self.args, self.input, timeout)
@@ -51,7 +50,7 @@ class TestCase(object):
             raise result.exception
         if result.returncode:
             raise ExecutionException(result.stderr)
-        setattr(self, kind, result.stdout)
+        setattr(self, kind, result.stdout.decode(DEFAULT_ENCODING))
 
     def fill_output(self, solution):
         self.output = None
@@ -70,16 +69,24 @@ class TestCase(object):
             ))
 
     def write(self, path, overwrite = False):
-        def _write(kind):
+        written = []
+        for kind in TestCase.KINDS:
             data = getattr(self, kind)
-            if data is None: return None
-            if kind == 'args': data = _decode(' '.join(map(quote, map(_encode, self.args))) + '\n')
+            if data is None: continue
+            if kind == 'args': data = _decode(' '.join(map(quote, map(_encode, data))) + '\n')
             case_path = join(path, TestCase.FORMATS[kind].format(self.name))
             if overwrite or not isfile(case_path):
                 with io.open(case_path, 'w', encoding = DEFAULT_ENCODING) as f: f.write(data)
-                return basename(case_path)
-            return None
-        return filter(None, (_write(kind) for kind in TestCase.KINDS))
+                written.append(basename(case_path))
+        return written
+
+    def to_dict(self):
+        result = {}
+        for kind in TestCase.KINDS:
+            data = getattr(self, kind)
+            if kind == 'args': data = _decode(' '.join(map(quote, map(_encode, data))) + '\n')
+            result[kind] = data
+        return result
 
     def __str__(self):
         parts = [ 'Name: ' + self.name]
@@ -120,3 +127,7 @@ class TestCases(Mapping):
         for case in self.cases.values():
             written.extend(case.write(path, overwrite))
         return written
+
+    def json(self, path):
+        result = [case.to_dict() for case in self.cases.values()]
+        with io.open(path, 'w', encoding = DEFAULT_ENCODING) as f: f.write(dumps(result, ensure_ascii = False))
