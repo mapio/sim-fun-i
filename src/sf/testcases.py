@@ -1,4 +1,4 @@
-import codecs
+import io
 from collections import Mapping
 from difflib import context_diff, IS_CHARACTER_JUNK
 from itertools import chain
@@ -27,7 +27,7 @@ def _normalized_lines(u):
 
 class TestCase(object):
 
-    KINDS = 'args input output actual errors diffs'.split()
+    KINDS = 'args input output actual errors diffs'.split() # kept internally as unicode
     FORMATS = dict((kind, '{}-{{}}.txt'.format(kind)) for kind in KINDS)
     GLOBS = dict((kind, '{}-*.txt'.format(kind)) for kind in KINDS)
     TEST_NUM_RE = re.compile(r'(?:{})-(.+)\.txt'.format('|'.join(KINDS)))
@@ -37,10 +37,11 @@ class TestCase(object):
         def _read(kind):
             case_path = join(path, TestCase.FORMATS[kind].format(name))
             if isfile(case_path):
-                with codecs.open(case_path, 'rU', DEFAULT_ENCODING) as f: data = f.read()
+                with io.open(case_path, 'rU', encoding = DEFAULT_ENCODING) as f: data = f.read()
                 if kind == 'args': data = map(_decode, split(_encode(data), posix=True))
             else:
                 data = None
+
             setattr(self, kind, data)
         for kind in TestCase.KINDS: _read(kind)
 
@@ -68,7 +69,6 @@ class TestCase(object):
                 TestCase.FORMATS['output'].format(self.name), TestCase.FORMATS['actual'].format(self.name)
             ))
 
-
     def write(self, path, overwrite = False):
         def _write(kind):
             data = getattr(self, kind)
@@ -76,7 +76,7 @@ class TestCase(object):
             if kind == 'args': data = _decode(' '.join(map(quote, map(_encode, self.args))) + '\n')
             case_path = join(path, TestCase.FORMATS[kind].format(self.name))
             if overwrite or not isfile(case_path):
-                with codecs.open(case_path, 'w', DEFAULT_ENCODING) as f: f.write(data)
+                with io.open(case_path, 'w', encoding = DEFAULT_ENCODING) as f: f.write(data)
                 return basename(case_path)
             return None
         return filter(None, (_write(kind) for kind in TestCase.KINDS))
