@@ -31,36 +31,14 @@ def rmrotree( path ):
 		unlink(p)
 	rmtree(path, onerror = _oe)
 
-class TristoMietitoreUploads(object):
-    def __init__(self, path):
-        self.path = path
-        uid2timestamps = defaultdict(list)
-        for tf in glob(join(path, '*', '[0-9]*.tar')):
-            m = UID_TIMESTAMP_RE.match(tf)
-            if m:
-                gd = m.groupdict()
-                uid2timestamps[gd['uid']].append(gd['timestamp'])
-        self.uid2timestamps = dict(uid2timestamps)
-
-    def untar(self, uid, timestamp = None, clean = True):
-        if timestamp is None: timestamp = max(self.uid2timestamps[uid])
-        dest_dir = join(self.path, uid, timestamp)
-    	if not clean and isdir(dest_dir):
-            LOGGER.info( 'Upload for uid {} skipped ({} already exists, corresponding to time {})'.format(uid, dest_dir, isots(timestamp)))
-        else:
-            rmrotree(dest_dir)
-            with TarFile.open(join(self.path, uid, timestamp + '.tar'), mode = 'r') as tf: tf.extractall(dest_dir)
-    	    LOGGER.info( 'Upload for uid {} untarred (in {}, corresponding to time {})'.format(uid, dest_dir, isots(timestamp)))
-        latest = join(self.path, uid, 'latest')
-    	if islink(latest): unlink(latest)
-    	symlink(timestamp, latest)
-        return map(basename, filter(isdir, glob(join(dest_dir, '*'))))
 
 class TristoMietitoreConfig(object):
+
     def __init__(self, path):
         config = {}
         with open(path, 'r') as f: exec f in config
         self.tar_data = BytesIO(decodestring(config['TAR_DATA']))
+
     def cases(self, exercise):
         self.tar_data.seek(0)
         result = {}
@@ -76,3 +54,39 @@ class TristoMietitoreConfig(object):
                             setattr(tc, kind, data)
                             result[name] = tc
         return TestCases(result)
+
+
+class TristoMietitoreUploads(object):
+
+    def __init__(self, path):
+        if not isdir(path): raise IOError('{} is not a directory'.format(path))
+        self.path = path
+        uid2timestamps = defaultdict(list)
+        for tf in glob(join(path, '*', '[0-9]*.tar')):
+            m = UID_TIMESTAMP_RE.match(tf)
+            if m:
+                gd = m.groupdict()
+                uid2timestamps[gd['uid']].append(gd['timestamp'])
+        self.uid2timestamps = dict(uid2timestamps)
+
+    def uids(self):
+        return self.uid2timestamps.keys()
+
+    def untar(self, uid, timestamp = None, clean = True):
+        if timestamp is None: timestamp = max(self.uid2timestamps[uid])
+        dest_dir = join(self.path, uid, timestamp)
+    	if not clean and isdir(dest_dir):
+            LOGGER.info( 'Upload for uid {} skipped ({} already exists, corresponding to time {})'.format(uid, dest_dir, isots(timestamp)))
+        else:
+            rmrotree(dest_dir)
+            with TarFile.open(join(self.path, uid, timestamp + '.tar'), mode = 'r') as tf: tf.extractall(dest_dir)
+    	    LOGGER.info( 'Upload for uid {} untarred (in {}, corresponding to time {})'.format(uid, dest_dir, isots(timestamp)))
+        latest = join(self.path, uid, 'latest')
+    	if islink(latest): unlink(latest)
+    	symlink(timestamp, latest)
+        return map(basename, filter(isdir, glob(join(dest_dir, '*'))))
+
+def tmtest(config, uploads, uid, timestamp = None, clean = True):
+    exercises = uploads.untar(uid, timestamp, clean)
+    for exercise in exercises:
+        print exercise
