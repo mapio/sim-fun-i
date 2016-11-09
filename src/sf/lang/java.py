@@ -1,3 +1,4 @@
+from os.path import isfile, join
 from re import compile as recompile
 
 from sf.solution import Solution, execute
@@ -11,3 +12,5 @@ class JavaSolution(Solution):
         self.run_command = ['java', '-Duser.language=ROOT', self.main_class]
     def compile(self):
         return execute(['javac'], args = self.sources, cwd = self.path)
+    def is_compiled(self):
+        return isfile(join(self.path, self.main_class + '.class'))

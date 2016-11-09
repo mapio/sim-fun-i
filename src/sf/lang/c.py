@@ -1,3 +1,4 @@
+from os.path import isfile, join
 from re import compile as recompile
 
 from sf.solution import Solution, execute
@@ -10,3 +11,5 @@ class CSolution(Solution):
         self.run_command = ['./soluzione']
     def compile(self):
         return execute(['gcc', '-o', 'soluzione'], args = self.sources, cwd = self.path)
+    def is_compiled(self):
+        return isfile(join(self.path, 'soluzione'))

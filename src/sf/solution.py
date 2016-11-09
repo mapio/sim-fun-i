@@ -11,6 +11,9 @@ Result = namedtuple('Result','returncode,stdout,stderr,exception')
 class ExecutionException(Exception):
     pass
 
+class NotCompiledException(ExecutionException):
+    pass
+
 class TimeoutException(ExecutionException):
     pass
 
@@ -54,7 +57,11 @@ class Solution(object):
         self.main_source = main_source[0] if len(main_source) == 1 else None
 
     def run(self, args = None, input_data = None, timeout = 0):
+        if not self.is_compiled(): raise NotCompiledException('Cannot find the compiled solution')
         return execute(self.run_command, args, input_data, timeout = timeout, cwd = self.path)
+
+    def __str__(self):
+        return 'Lang: {}, Path: {}, Sources: {}'.format(self.NAME, self.path, ' ,'.join(self.sources))
 
 from sf.lang import JavaSolution, CSolution
 
