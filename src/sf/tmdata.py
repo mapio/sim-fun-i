@@ -107,13 +107,19 @@ def tmtest(config, uploads, uid, timestamp = None, clean = True):
         result['sources'] = [{'name': name, 'content': content} for name, content in solution.file_contents.items()]
         compilation_result = solution.compile()
         if compilation_result.returncode:
-            print "MERDA"
-        LOGGER.info( 'Compiled exercise {} for uid {}'.format(exercise, uid))
+            result['compilation'] = {'error': compilation_result.stderr}
+            result['cases'] = []
+            LOGGER.warn( 'Failed to compile exercise {} for uid {}'.format(exercise, uid))
+            results.append(result)
+            continue
+        else:
+            result['compilation']={'error': '' }
+            LOGGER.info( 'Compiled exercise {} for uid {}'.format(exercise, uid))
         cases = config.cases(exercise)
         if cases is None: raise RuntimeError('Missing cases for: {}, in: {}'.format(exercise_path, config.path))
         num_cases = cases.fill_actual(solution)
         LOGGER.info( 'Run {} test cases for {} for uid {}'.format(num_cases, exercise, uid))
         cases.write(exercise_path)
-        result['cases']=cases.to_list_of_dicts()
+        result['cases'] = cases.to_list_of_dicts()
         results.append(result)
     json_dump(results, join(uploads.path, uid, 'latest.json'))
