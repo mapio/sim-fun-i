@@ -21,7 +21,6 @@ class TimeoutException(ExecutionException):
     pass
 
 
-
 def execute(cmd, args = None, input_data = None, timeout = 0, cwd = None):
     if args is None: args = []
     try:
@@ -66,5 +65,6 @@ from sf.lang import JavaSolution, CSolution, ShSolution
 
 def autodetect_solution(path = '.'):
     for cls in JavaSolution, CSolution, ShSolution:
-        if glob(join(path,cls.SOURCES_GLOB)): return cls(path)
+        solution = cls(path)
+        if solution.main_source: return solution
     return None

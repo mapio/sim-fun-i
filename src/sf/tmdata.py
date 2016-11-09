@@ -101,16 +101,18 @@ def tmtest(config, uploads, uid, timestamp = None, clean = True):
     exercises = uploads.untar(uid, timestamp, clean)
     for exercise in exercises:
         exercise_path = join(uploads.path, uid, 'latest', exercise)
+        compile_case = TestCase('<COMPILE>')
         solution = autodetect_solution(exercise_path)
-        if solution is None: raise RuntimeError('Missing solution in: {}'.format(exercise_path))
-        compilation_result = solution.compile()
-        if compilation_result.returncode:
-            tc = TestCase('<COMPILE>')
-            tc.errors = compilation_result.stderr.decode(DEFAULT_ENCODING)
-            result = [tc.to_dict()]
-            LOGGER.warn( 'Failed to compile exercise {} for uid {}'.format(exercise, uid))
+        if solution is None:
+            compile_case.errors = u'Missing (or ambiguous) solution'
+            LOGGER.warn( 'Missing (or ambiguous) solution in {} for uid {}'.format(exercise, uid))
         else:
-            result = [TestCase('<COMPILE>').to_dict()]
+            compilation_result = solution.compile()
+            if compilation_result.returncode:
+                compile_case.errors = compilation_result.stderr.decode(DEFAULT_ENCODING)
+            LOGGER.warn( 'Failed to compile exercise {} for uid {}'.format(exercise, uid))
+        result = [compile_case.to_dict()]
+        if not compile_case.errors:
             LOGGER.info( 'Compiled exercise {} for uid {}'.format(exercise, uid))
             cases = config.cases(exercise)
             if cases is None: raise RuntimeError('Missing cases for: {}, in: {}'.format(exercise_path, config.path))

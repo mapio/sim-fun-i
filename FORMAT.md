@@ -13,7 +13,7 @@ RESULT := {
 EXERCISE := {
     'name', <EXERCISE_NAME>,
     'sources': [ ( <SOURCE> )+ ],
-    'cases': [ ( <CASE> )* ]
+    'cases': [ <COMPILATION_CASE>, ( <CASE> )* ]
 }
 
 SOURCE := {
