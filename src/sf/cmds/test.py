@@ -18,7 +18,6 @@ def main():
     parser.add_argument('--force-compile', '-f', help = 'Whether to force a compilation before generating the outputs.', default = False, action = 'store_true')
     parser.add_argument('--cases-dir', '-c', help = 'The directory where the test cases are to be found.')
     parser.add_argument('--actual-dir', '-a', help = 'The direcotry where to write the generated actual files.', default = '.')
-    parser.add_argument('--json-dump', '-j', help = 'The filename where to write the json summary of the tests.')
     parser.add_argument('--no-overwrite', '-n', help = 'Whether to overwrite the actual files, if present.', default = False, action = 'store_true')
     parser.add_argument('--verbose', '-v', help = 'Whether to give verbose output.', default = False, action = 'store_true')
     args = parser.parse_args()
@@ -44,9 +43,6 @@ def main():
         else:
             stderr.write(Fore.BLUE + _('No files written!\n') + Style.RESET_ALL)
 
-    if args.json_dump:
-        cases.json(args.json_dump)
-        
     for case in cases.values():
         if case.errors:
             stderr.write(Fore.RED + _('Case {} returned the following errors:\n').format(case.name) + Style.RESET_ALL)
