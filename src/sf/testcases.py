@@ -8,6 +8,7 @@ from os.path import join, isfile, basename
 from pipes import quote
 import re
 from shlex import split
+import sys
 from textwrap import dedent
 
 from sf.solution import ExecutionException
@@ -57,28 +58,31 @@ class TestCase(object):
             setattr(self, kind, data)
 
     def _fill(self, solution, kind, timeout = 0):
+        setattr(self, kind, None)
         result = solution.run(self.args, self.input, timeout)
         if result.exception:
             raise result.exception
         if result.returncode:
-            raise ExecutionException(result.stderr)
+            raise ExecutionException('Exit status: {} (non-zero), errors: "{}"'.format(result.returncode, result.stderr))
         setattr(self, kind, result.stdout.decode(DEFAULT_ENCODING))
 
     def fill_output(self, solution):
-        self.output = None
         self._fill(solution, 'output')
+        self.errors = None
+        self.diffs = None
 
     def fill_actual(self, solution):
         try:
             self._fill(solution, 'actual', TEST_TIMEOUT)
         except ExecutionException, e:
-            self.actual = None
-            self.errors = '[{}] {}\n'.format(type(e).__name__, str(e).rstrip())
+            self.diffs = None
+            self.errors = u'[{}] {}\n'.format(type(e).__name__, str(e).rstrip())
         else:
-            self.diffs = ''.join(context_diff(
+            self.diffs = u''.join(context_diff(
                 _normalized_lines(self.output), _normalized_lines(self.actual),
                 TestCase.FORMATS['output'].format(self.name), TestCase.FORMATS['actual'].format(self.name)
             ))
+            self.errors = None
 
     def write(self, path, overwrite = False):
         written = []
@@ -115,11 +119,11 @@ class TestCases(Mapping):
             self.cases = path_or_dict
         else:
             self.path = path_or_dict
-            cases_paths = chain(*map(glob, (join(path, TestCase.GLOBS[kind]) for kind in TestCase.KINDS)))
+            cases_paths = chain(*map(glob, (join(self.path, TestCase.GLOBS[kind]) for kind in TestCase.KINDS)))
             names = set()
             for case_path in cases_paths:
                 names.add(TestCase.TEST_NUM_RE.match(basename(case_path)).group(1))
-            self.cases = dict((name, TestCase(name, path)) for name in names)
+            self.cases = dict((name, TestCase(name, self.path)) for name in names)
 
     def __getitem__(self, key):
         return self.cases[key]
@@ -144,9 +148,8 @@ class TestCases(Mapping):
             written.extend(case.write(path, overwrite))
         return written
 
-    def json(self, path):
-        result = [case.to_dict() for case in self.cases.values()]
-        with io.open(path, 'w', encoding = DEFAULT_ENCODING) as f: f.write(dumps(result, ensure_ascii = False))
+    def to_list_of_dicts(self):
+        return [case.to_dict() for case in self.cases.values()]
 
     def __str__(self):
         result = [ 'Path: {}'.format(self.path) ]

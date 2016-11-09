@@ -3,7 +3,8 @@ from collections import defaultdict
 from datetime import datetime
 from fnmatch import fnmatch
 from glob import glob
-from io import BytesIO
+import io
+from json import dumps
 from os import chmod, unlink, symlink
 from os.path import join, dirname, basename, isdir, islink
 import re
@@ -15,12 +16,16 @@ LOG_LEVEL = INFO
 basicConfig(format = '%(asctime)s %(levelname)s: [%(funcName)s] %(message)s', datefmt = '%Y-%m-%d %H:%M:%S', level = LOG_LEVEL)
 LOGGER = getLogger(__name__)
 
-from sf.testcases import TestCase, TestCases
+from sf.solution import autodetect_solution, ExecutionException
+from sf.testcases import TestCase, TestCases, DEFAULT_ENCODING
 
 UID_TIMESTAMP_RE = re.compile( r'.*/(?P<uid>.+)/(?P<timestamp>[0-9]+)\.tar' )
 
 def isots(timestamp):
     return datetime.fromtimestamp(int(timestamp)/1000).isoformat()
+
+def json_dump(data, path):
+    with io.open(path, 'w', encoding = DEFAULT_ENCODING) as f: f.write(dumps(data, ensure_ascii = False, sort_keys = True, indent = 4))
 
 def rmrotree( path ):
 	def _oe(f, p, e):
@@ -37,11 +42,13 @@ class TristoMietitoreConfig(object):
     def __init__(self, path):
         config = {}
         with open(path, 'r') as f: exec f in config
-        self.tar_data = BytesIO(decodestring(config['TAR_DATA']))
+        self.tar_data = io.BytesIO(decodestring(config['TAR_DATA']))
+        self.cached_cases = {}
 
     def cases(self, exercise):
+        if exercise in self.cached_cases: return self.cached_cases[exercise]
         self.tar_data.seek(0)
-        result = {}
+        cases = {}
         with TarFile.open(mode = 'r', fileobj = self.tar_data ) as tf:
             for m in tf.getmembers():
                 if m.isfile():
@@ -49,11 +56,13 @@ class TristoMietitoreConfig(object):
                         if fnmatch(m.name, join(exercise, TestCase.GLOBS[kind])):
                             name = TestCase.TEST_NUM_RE.match(basename(m.name)).group(1)
                             data = tf.extractfile(m).read().decode('utf-8')
-                            tc = result.get(name, TestCase(name))
+                            tc = cases.get(name, TestCase(name))
                             if kind == 'args': data = TestCase.u2args(data)
                             setattr(tc, kind, data)
-                            result[name] = tc
-        return TestCases(result)
+                            cases[name] = tc
+        tcs = TestCases(cases)
+        self.cached_cases[exercise] = tcs
+        return tcs
 
 
 class TristoMietitoreUploads(object):
@@ -88,5 +97,17 @@ class TristoMietitoreUploads(object):
 
 def tmtest(config, uploads, uid, timestamp = None, clean = True):
     exercises = uploads.untar(uid, timestamp, clean)
+    result = {}
     for exercise in exercises:
-        print exercise
+        result[exercise] = {}
+        exercise_path = join(uploads.path, uid, 'latest', exercise)
+        solution = autodetect_solution(exercise_path)
+        if solution is None: raise RuntimeError('Missing solution in: {}'.format(exercise_path))
+        compilation_result = solution.compile()
+        if compilation_result.returncode:
+            print "MERDA"
+        cases = config.cases(exercise)
+        cases.fill_actual(solution)
+        cases.write(exercise_path)
+        result[exercise]['cases']=cases.to_list_of_dicts()
+    json_dump(result,join(uploads.path, uid, 'latest.json'))
