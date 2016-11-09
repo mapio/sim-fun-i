@@ -42,6 +42,7 @@ class TristoMietitoreConfig(object):
     def __init__(self, path):
         config = {}
         with open(path, 'r') as f: exec f in config
+        self.path = path
         self.tar_data = io.BytesIO(decodestring(config['TAR_DATA']))
         self.cached_cases = {}
 
@@ -60,7 +61,7 @@ class TristoMietitoreConfig(object):
                             if kind == 'args': data = TestCase.u2args(data)
                             setattr(tc, kind, data)
                             cases[name] = tc
-        tcs = TestCases(cases)
+        tcs = TestCases(cases) if cases else None
         self.cached_cases[exercise] = tcs
         return tcs
 
@@ -85,11 +86,11 @@ class TristoMietitoreUploads(object):
         if timestamp is None: timestamp = max(self.uid2timestamps[uid])
         dest_dir = join(self.path, uid, timestamp)
     	if not clean and isdir(dest_dir):
-            LOGGER.info( 'Upload for uid {} skipped ({} already exists, corresponding to time {})'.format(uid, dest_dir, isots(timestamp)))
+            LOGGER.info( 'Upload for uid {} skipped ({})'.format(uid, isots(timestamp)))
         else:
             rmrotree(dest_dir)
             with TarFile.open(join(self.path, uid, timestamp + '.tar'), mode = 'r') as tf: tf.extractall(dest_dir)
-    	    LOGGER.info( 'Upload for uid {} untarred (in {}, corresponding to time {})'.format(uid, dest_dir, isots(timestamp)))
+    	    LOGGER.info( 'Upload for uid {} untarred ({})'.format(uid, isots(timestamp)))
         latest = join(self.path, uid, 'latest')
     	if islink(latest): unlink(latest)
     	symlink(timestamp, latest)
@@ -97,17 +98,22 @@ class TristoMietitoreUploads(object):
 
 def tmtest(config, uploads, uid, timestamp = None, clean = True):
     exercises = uploads.untar(uid, timestamp, clean)
-    result = {}
+    results = []
     for exercise in exercises:
-        result[exercise] = {}
+        result = { 'name': exercise }
         exercise_path = join(uploads.path, uid, 'latest', exercise)
         solution = autodetect_solution(exercise_path)
         if solution is None: raise RuntimeError('Missing solution in: {}'.format(exercise_path))
+        result['sources'] = [{'name': name, 'content': content} for name, content in solution.file_contents.items()]
         compilation_result = solution.compile()
         if compilation_result.returncode:
             print "MERDA"
+        LOGGER.info( 'Compiled exercise {} for uid {}'.format(exercise, uid))
         cases = config.cases(exercise)
-        cases.fill_actual(solution)
+        if cases is None: raise RuntimeError('Missing cases for: {}, in: {}'.format(exercise_path, config.path))
+        num_cases = cases.fill_actual(solution)
+        LOGGER.info( 'Run {} test cases for {} for uid {}'.format(num_cases, exercise, uid))
         cases.write(exercise_path)
-        result[exercise]['cases']=cases.to_list_of_dicts()
-    json_dump(result,join(uploads.path, uid, 'latest.json'))
+        result['cases']=cases.to_list_of_dicts()
+        results.append(result)
+    json_dump(results, join(uploads.path, uid, 'latest.json'))

@@ -135,8 +135,11 @@ class TestCases(Mapping):
         return iter(self.cases)
 
     def fill_actual(self, solution):
+        n = 0
         for case in self.cases.values():
             case.fill_actual(solution)
+            n += 1
+        return n
 
     def fill_output(self, solution):
         for case in self.cases.values():
