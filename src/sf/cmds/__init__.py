@@ -1,4 +1,5 @@
 from importlib import import_module
+from os import environ
 import sys
 from traceback import format_exception_only
 
@@ -10,7 +11,8 @@ _ = DEFAULT_GETTEXT
 COMMANDS = 'compile', 'run', 'generate', 'test'
 
 def main():
-    sys.excepthook = lambda t, v, tb: sys.exit(Fore.RED + _('The following error occurred: ') + Style.RESET_ALL + format_exception_only(t, v)[0])
+    if 'SF_DEBUG' not in environ:
+        sys.excepthook = lambda t, v, tb: sys.exit(Fore.RED + _('The following error occurred: ') + Style.RESET_ALL + format_exception_only(t, v)[0])
     try:
         subcommand = sys.argv.pop(1)
     except IndexError:
