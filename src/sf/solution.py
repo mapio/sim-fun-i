@@ -1,7 +1,8 @@
 from collections import namedtuple
 from glob import glob
+import io
 from os.path import isfile, basename, join
-from re import compile as recompile
+import re
 from shlex import split
 import subprocess
 from threading import Timer
@@ -16,6 +17,8 @@ class NotCompiledException(ExecutionException):
 
 class TimeoutException(ExecutionException):
     pass
+
+from sf.testcases import DEFAULT_ENCODING # don't move, circular imports ahead
 
 def execute(cmd, args = None, input_data = None, timeout = 0, cwd = None):
     if args is None: args = []
@@ -45,15 +48,16 @@ class Solution(object):
     def __init__(self, path):
         self.NAME = type(self).__name__
         self.path = path
-        sources = glob(join(path,self.SOURCES_GLOB))
+        self.sources = map(basename, glob(join(path,self.SOURCES_GLOB)))
+        self.file_contents = dict()
+        all_files = self.sources
+        if self.OTHERS_GLOB: self.sources += map(basename, glob(join(path,self.OTHERS_GLOB)))
+        for name in all_files:
+            with io.open(join(path,name), 'rU') as f: self.file_contents[name] = f.read()
         main_source = []
-        self.sources = []
-        for source in sources:
-            self.sources.append(basename(source))
-            with open(source, 'rU') as f:
-                for line in f:
-                    if self.MAIN_SOURCE_RE.search(line):
-                        main_source.append(basename(source))
+        for name, content in self.file_contents.items():
+            if self.MAIN_SOURCE_RE.search(content, re.MULTILINE):
+                main_source.append(name)
         self.main_source = main_source[0] if len(main_source) == 1 else None
 
     def run(self, args = None, input_data = None, timeout = 0):
@@ -63,9 +67,9 @@ class Solution(object):
     def __str__(self):
         return 'Lang: {}, Path: {}, Sources: {}'.format(self.NAME, self.path, ' ,'.join(self.sources))
 
-from sf.lang import JavaSolution, CSolution
+from sf.lang import JavaSolution, CSolution, ShSolution
 
 def autodetect_solution(path = '.'):
-    for cls in JavaSolution, CSolution:
+    for cls in JavaSolution, CSolution, ShSolution:
         if glob(join(path,cls.SOURCES_GLOB)): return cls(path)
     return None
