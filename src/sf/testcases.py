@@ -11,11 +11,8 @@ from shlex import split
 import sys
 from textwrap import dedent
 
+from sf import DEFAULT_ENCODING, TEST_TIMEOUT
 from sf.solution import ExecutionException
-
-DEFAULT_ENCODING = 'utf-8'
-TEST_TIMEOUT = 1
-MAX_BYTES_READ = 1024 * 1024
 
 def _encode(u):
     if u is None: return u''
@@ -37,11 +34,17 @@ class TestCase(object):
 
     @staticmethod
     def u2args(u):
-        return map(_decode, split(_encode(u), posix=True))
+        if u:
+            return map(_decode, split(_encode(u), posix=True))
+        else:
+            return None
 
     @staticmethod
     def args2u(args):
-        return _decode(' '.join(map(quote, map(_encode, args))) + '\n')
+        if args:
+            return _decode(' '.join(map(quote, map(_encode, args))) + '\n')
+        else:
+            return u''
 
     def __init__(self, name, path = None):
         self.name = name
@@ -97,10 +100,10 @@ class TestCase(object):
         return written
 
     def to_dict(self):
-        result = {}
+        result = {'name': self.name}
         for kind in TestCase.KINDS:
             data = getattr(self, kind)
-            if kind == 'args': data = _decode(' '.join(map(quote, map(_encode, data))) + '\n')
+            if kind == 'args': data = TestCase.args2u(data)
             result[kind] = data
         return result
 

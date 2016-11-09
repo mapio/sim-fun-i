@@ -5,7 +5,6 @@ from sf.solution import Solution, Result, execute
 
 class ShSolution(Solution):
     SOURCES_GLOB = '*.sh'
-    OTHERS_GLOB = None
     MAIN_SOURCE_RE = recompile(r'.*')
     def __init__(self, path):
         super(ShSolution, self).__init__(path)

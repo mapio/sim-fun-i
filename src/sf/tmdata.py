@@ -16,6 +16,7 @@ LOG_LEVEL = INFO
 basicConfig(format = '%(asctime)s %(levelname)s: [%(funcName)s] %(message)s', datefmt = '%Y-%m-%d %H:%M:%S', level = LOG_LEVEL)
 LOGGER = getLogger(__name__)
 
+from sf import DEFAULT_ENCODING
 from sf.solution import autodetect_solution, ExecutionException
 from sf.testcases import TestCase, TestCases, DEFAULT_ENCODING
 
@@ -98,28 +99,23 @@ class TristoMietitoreUploads(object):
 
 def tmtest(config, uploads, uid, timestamp = None, clean = True):
     exercises = uploads.untar(uid, timestamp, clean)
-    results = []
     for exercise in exercises:
-        result = { 'name': exercise }
         exercise_path = join(uploads.path, uid, 'latest', exercise)
         solution = autodetect_solution(exercise_path)
         if solution is None: raise RuntimeError('Missing solution in: {}'.format(exercise_path))
-        result['sources'] = [{'name': name, 'content': content} for name, content in solution.file_contents.items()]
         compilation_result = solution.compile()
         if compilation_result.returncode:
-            result['compilation'] = {'error': compilation_result.stderr}
-            result['cases'] = []
+            tc = TestCase('<COMPILE>')
+            tc.errors = compilation_result.stderr.decode(DEFAULT_ENCODING)
+            result = [tc.to_dict()]
             LOGGER.warn( 'Failed to compile exercise {} for uid {}'.format(exercise, uid))
-            results.append(result)
-            continue
         else:
-            result['compilation']={'error': '' }
+            result = [TestCase('<COMPILE>').to_dict()]
             LOGGER.info( 'Compiled exercise {} for uid {}'.format(exercise, uid))
-        cases = config.cases(exercise)
-        if cases is None: raise RuntimeError('Missing cases for: {}, in: {}'.format(exercise_path, config.path))
-        num_cases = cases.fill_actual(solution)
-        LOGGER.info( 'Run {} test cases for {} for uid {}'.format(num_cases, exercise, uid))
-        cases.write(exercise_path)
-        result['cases'] = cases.to_list_of_dicts()
-        results.append(result)
-    json_dump(results, join(uploads.path, uid, 'latest.json'))
+            cases = config.cases(exercise)
+            if cases is None: raise RuntimeError('Missing cases for: {}, in: {}'.format(exercise_path, config.path))
+            num_cases = cases.fill_actual(solution)
+            LOGGER.info( 'Run {} test cases for {} for uid {}'.format(num_cases, exercise, uid))
+            cases.write(exercise_path)
+            result.extend(cases.to_list_of_dicts())
+        json_dump(result, join(uploads.path, uid, 'latest', 'TEST-{}.json'.format(exercise)))

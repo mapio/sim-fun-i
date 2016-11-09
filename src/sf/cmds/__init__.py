@@ -8,7 +8,7 @@ from colorama import Fore, Style
 from sf.zipgettext import DEFAULT_GETTEXT
 _ = DEFAULT_GETTEXT
 
-COMMANDS = 'compile', 'run', 'generate', 'test', 'tmtest'
+COMMANDS = 'compile', 'run', 'generate', 'test', 'tmtest', 'mkresults'
 
 def main():
     if 'SF_DEBUG' not in environ:

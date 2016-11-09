@@ -5,7 +5,6 @@ from sf.solution import Solution, execute
 
 class CSolution(Solution):
     SOURCES_GLOB = '*.c'
-    OTHERS_GLOB = '*.h'
     MAIN_SOURCE_RE = recompile(r'int\s+main')
     def __init__(self, path):
         super(CSolution, self).__init__(path)
