@@ -11,7 +11,7 @@ from shlex import split
 import sys
 from textwrap import dedent
 
-from sf import DEFAULT_ENCODING, TEST_TIMEOUT
+from sf import DEFAULT_ENCODING, TEST_TIMEOUT, MAX_BYTES_READ
 from sf.solution import ExecutionException
 
 def _encode(u):
@@ -44,7 +44,7 @@ class TestCase(object):
         if args:
             return _decode(' '.join(map(quote, map(_encode, args))) + '\n')
         else:
-            return u''
+            return None
 
     def __init__(self, name, path = None):
         self.name = name
@@ -81,10 +81,11 @@ class TestCase(object):
             self.diffs = None
             self.errors = u'[{}] {}\n'.format(type(e).__name__, str(e).rstrip())
         else:
-            self.diffs = u''.join(context_diff(
+            diffs = list(context_diff(
                 _normalized_lines(self.output), _normalized_lines(self.actual),
                 TestCase.FORMATS['output'].format(self.name), TestCase.FORMATS['actual'].format(self.name)
             ))
+            self.diffs = u''.join(diffs) if diffs else None
             self.errors = None
 
     def write(self, path, overwrite = False):

@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html>
+	<head>
+	<title>See You Viewer</title>
+		<link href="css/bootstrap.css" rel="stylesheet" media="screen">
+		<link href="css/highlight/solarized_light.css" rel="stylesheet"/>
+		<link href="css/tablesorter.css" rel="stylesheet">
+		<style>
+			body { padding: 1em; }
+			div.progress { margin-bottom: 0px; }
+			table { table-layout: fixed; }
+ 			table th, table td { overflow: hidden; }
+ 			#printinfo { display: none; }
+ 			@media print {
+  				#summary_tab, #cases_tab, #navigation, #shortcuts { display: none; }
+  				#printinfo { display: block; }
+			}
+		</style>
+		<script src="js/jquery.js"></script>
+		<script src="js/bootstrap.js"></script>
+		<script src="js/highlight.js"></script>
+		<script src="js/mousetrap.js"></script>
+		<script src="js/sha1.js"></script>
+		<script src="js/filesaver.js"></script>
+		<script src="js/jquery.tablesorter.js"></script>
+		<script src="js/jquery.tablesorter.widgets.js"></script>
+		<script src="cuv.js"></script>
+	</head>
+	<body>
+
+	<div id="shortcuts" class="modal hide" data-keyboard="true">
+		<div class="modal-header">
+			<button type="button" class="close" data-dismiss="modal">&times;</button>
+			<h3>Keyboard shortcuts</h3>
+		</div>
+		<div class="modal-body">
+			<ul>
+			<li><kbd>h</kbd>: toggle this help,</li>
+			<li><kbd>r</kbd>: toggle score number/bars in summary,</li>
+			<li class="interactive"><kbd>t</kbd>: toggle score/inputs in summary,</li>
+			<li><kbd>q</kbd>,
+				<kbd>w</kbd>,
+				<kbd>e</kbd>: previous <em>uid</em>, summary, next <em>uid</em>,</li>
+			<li><kbd>a</kbd>,
+				<kbd>s</kbd>,
+				<kbd>d</kbd>: previous, current, next <em>exercise</em>,</li>
+			<li><kbd>z</kbd>,
+				<kbd>x</kbd>,
+				<kbd>c</kbd>: previous, current, next <em>case</em>.</li>
+			</ul>
+		</div>
+	</div>
+
+	<div class="container-fluid"><div class="row-fluid">
+
+	<div class="span2" id="navigation">
+
+		<form><fieldset>
+		<label>UID</label>
+		<span class="uneditable-input" id="uid"></span>
+		<label>Info</label>
+		<input type="text" id="info" autocomplete="off">
+		<label>Exercise</label>
+		<span class="uneditable-input" id="exercise"></span>
+		<label>Case</label>
+		<span class="uneditable-input" id="case"></span>
+		<label>IP</label>
+		<span class="uneditable-input" id="ip"></span>
+		</fieldset></form>
+
+		<hr/>
+
+		<ul id="sections_nav" class="nav nav-pills nav-stacked">
+			<li class="active"><a href="#summary_tab" data-toggle="tab">Summary</a></li>
+			<li><a href="#sources_tab" data-toggle="tab">Sources</a></li>
+			<li><a href="#cases_tab" data-toggle="tab">Cases</a></li>
+		</ul>
+		<div class="alert alert-info">Press <kbd>h</kbd> for a list of shortcuts.</div>
+
+		<hr/>
+
+		<div class="interactive">
+		<div class="fileupload fileupload-new" data-provides="fileupload">
+			<span class="btn btn-file"><span class="fileupload-new">Load results</span><input type="file" id="result_file" /></span>
+		</div>
+		<span class="uneditable-input" id="result_sha"></span>
+		<button class="btn" type="button" onclick="dowlonad_evaluations()">Download evaluations</button>
+		</div>
+
+	</div><!-- sidebar -->
+
+	<div class="span10">
+
+		<div id="sections_content" class="tab-content">
+
+			<div class="tab-pane" id="summary_tab">
+					<div id="summary"></div>
+			</div>
+
+			<div class="tab-pane" id="sources_tab">
+				<div class="well" id="evaluation" data-uid="" data-exercise="">
+				<form class="form-horizontal"><fieldset>
+					<legend>Evaluation</legend>
+						<div class="control-group" id="printinfo">
+							<label class="control-label">UID, Info, IP, Exercise</label>
+							<div class="controls"><span id="identification" class="uneditable-input input-xxlarge"></span></div>
+						</div>
+						<div class="control-group">
+							<label class="control-label">Score</label>
+							<div class="controls"><input id="score" type="number" step="any" class="input-mini" onchange="store_evaluation( this )"></div>
+						</div>
+						<div class="control-group">
+							<label class="control-label">Note</label>
+							<div class="controls"><textarea id="note" class="input-xxlarge" onchange="store_evaluation( this )"></textarea></div>
+						</div>
+				</fieldset></form></div>
+				<div id="sources"></div>
+			</div>
+
+			<div class="tab-pane" id="cases_tab">
+				<div id="cases"></div>
+			</div>
+
+		</div>
+
+	</div><!-- body -->
+
+	</div><!-- row --></div><!-- container -->
+	</body>
+</html>

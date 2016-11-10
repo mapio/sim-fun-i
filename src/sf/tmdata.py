@@ -110,7 +110,7 @@ def tmtest(config, uploads, uid, timestamp = None, clean = True):
             compilation_result = solution.compile()
             if compilation_result.returncode:
                 compile_case.errors = compilation_result.stderr.decode(DEFAULT_ENCODING)
-            LOGGER.warn( 'Failed to compile exercise {} for uid {}'.format(exercise, uid))
+                LOGGER.warn( 'Failed to compile exercise {} for uid {}'.format(exercise, uid))
         result = [compile_case.to_dict()]
         if not compile_case.errors:
             LOGGER.info( 'Compiled exercise {} for uid {}'.format(exercise, uid))
