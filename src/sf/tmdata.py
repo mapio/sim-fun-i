@@ -57,7 +57,7 @@ class TristoMietitoreConfig(object):
                     for kind in TestCase.KINDS:
                         if fnmatch(m.name, join(exercise, TestCase.GLOBS[kind])):
                             name = TestCase.TEST_NUM_RE.match(basename(m.name)).group(1)
-                            data = tf.extractfile(m).read().decode('utf-8')
+                            data = tf.extractfile(m).read().decode(DEFAULT_ENCODING)
                             tc = cases.get(name, TestCase(name))
                             if kind == 'args': data = TestCase.u2args(data)
                             setattr(tc, kind, data)

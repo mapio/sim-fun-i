@@ -68,7 +68,7 @@ class TestCase(object):
             raise result.exception
         if result.returncode:
             raise ExecutionException('Exit status: {} (non-zero), errors: "{}"'.format(result.returncode, result.stderr))
-        setattr(self, kind, result.stdout.decode(DEFAULT_ENCODING))
+        setattr(self, kind, _decode(result.stdout))
 
     def fill_output(self, solution):
         self._fill(solution, 'output')

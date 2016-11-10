@@ -21,7 +21,7 @@ class TimeoutException(ExecutionException):
     pass
 
 
-def execute(cmd, args = None, input_data = None, timeout = 0, cwd = None):
+def execute(cmd, args = None, input_data = None, timeout = 0, cwd = None): # I/O is in DEFAULT_ENCODING
     if args is None: args = []
     try:
         process = subprocess.Popen(cmd + args, stdin = subprocess.PIPE if input_data else None, stdout = subprocess.PIPE, stderr = subprocess.PIPE, cwd = cwd)
@@ -50,11 +50,12 @@ class Solution(object):
         self.sources = map(basename, glob(join(path,self.SOURCES_GLOB)))
         main_source = []
         for name in self.sources:
-            with io.open(join(path,name), 'rU') as f: content = f.read()
+            with io.open(join(path,name), 'rU', encoding = DEFAULT_ENCODING) as f: content = f.read()
             if self.MAIN_SOURCE_RE.search(content, re.MULTILINE): main_source.append(name)
         self.main_source = main_source[0] if len(main_source) == 1 else None
 
-    def run(self, args = None, input_data = None, timeout = 0):
+    def run(self, args = None, input_data = None, timeout = 0): # I unicode, O utf-8
+        input_data = input_data.encode(DEFAULT_ENCODING) if input_data is not None else None
         if not self.is_compiled(): raise NotCompiledException('Cannot find the compiled solution')
         return execute(self.run_command, args, input_data, timeout = timeout, cwd = self.path)
 
