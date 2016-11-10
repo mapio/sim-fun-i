@@ -29,7 +29,7 @@ def main():
     cases = TestCases(args.cases_dir)
     try:
         cases.fill_actual(solution)
-    except ExecutionException, e:
+    except ExecutionException as e:
         stderr.write(Fore.RED + _('Execution returned the following errors:\n') + Style.RESET_ALL)
         stderr.write(str(e))
         exit(1)

@@ -25,7 +25,7 @@ def execute(cmd, args = None, input_data = None, timeout = 0, cwd = None): # I/O
     if args is None: args = []
     try:
         process = subprocess.Popen(cmd + args, stdin = subprocess.PIPE if input_data else None, stdout = subprocess.PIPE, stderr = subprocess.PIPE, cwd = cwd)
-    except OSError, e:
+    except OSError as e:
         return Result(None, None, None, exception = e)
     if timeout:
         timer = Timer(timeout, process.kill)
