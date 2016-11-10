@@ -5,7 +5,7 @@ from fnmatch import fnmatch
 from glob import glob
 import io
 from json import dumps
-from os import chmod, unlink, symlink
+from os import chmod, unlink, symlink, makedirs
 from os.path import join, dirname, basename, isdir, islink
 import re
 from shutil import copytree, rmtree
@@ -88,14 +88,17 @@ class TristoMietitoreUploads(object):
         dest_dir = join(self.path, uid, timestamp)
     	if not clean and isdir(dest_dir):
             LOGGER.info( 'Upload for uid {} skipped ({})'.format(uid, isots(timestamp)))
+            exercises = []
         else:
             rmrotree(dest_dir)
+            makedirs(dest_dir, 0700) # to have a placemark in case of empty tars
             with TarFile.open(join(self.path, uid, timestamp + '.tar'), mode = 'r') as tf: tf.extractall(dest_dir)
     	    LOGGER.info( 'Upload for uid {} untarred ({})'.format(uid, isots(timestamp)))
+            exercises = map(basename, filter(isdir, glob(join(dest_dir, '*'))))
         latest = join(self.path, uid, 'latest')
     	if islink(latest): unlink(latest)
     	symlink(timestamp, latest)
-        return map(basename, filter(isdir, glob(join(dest_dir, '*'))))
+        return exercises
 
 def tmtest(config, uploads, uid, timestamp = None, clean = True):
     exercises = uploads.untar(uid, timestamp, clean)
