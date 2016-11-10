@@ -14,11 +14,12 @@ _ = DEFAULT_GETTEXT
 def main():
     parser = ArgumentParser( prog = 'sf run' )
     parser.add_argument('--solution-dir', '-s', help = 'The directory where the solution is to be found.', default = '.')
-    parser.add_argument('--force-compile', '-f', help = 'Whether to force a compilation before generating the outputs.', default = False, action = 'store_true')
+    parser.add_argument('--force-compile', '-f', help = 'Whether to force a compilation before running the solution.', default = False, action = 'store_true')
+    parser.add_argument('--quiet', '-q', help = 'Whether to be more silent.', default = False, action = 'store_true')
     parser.add_argument('args', nargs = REMAINDER)
     args = parser.parse_args()
 
-    solution = detect_and_compile(args.solution_dir, args.force_compile)
+    solution = detect_and_compile(args.solution_dir, args.force_compile, args.quiet)
 
     result = solution.run(args.args)
     if result.exception:
