@@ -5,6 +5,7 @@ from errno import EACCES
 from glob import glob
 from itertools import chain
 from json import dumps
+import os
 from os.path import join, isfile, basename
 from pipes import quote
 import re
@@ -90,17 +91,27 @@ class TestCase(object):
             self.diffs = u''.join(diffs) if diffs else None
             self.errors = None
 
+    # writes members to files
+    # non-empty members are written if:
+    #  - the file does not exists, or
+    #  - overwrite is true, and the existing file is writable
+    # empty (None) members determine the deletion of the file if:
+    #  - overwrite is true, and the existing file is writable
     def write(self, path, overwrite = False):
         written = []
         for kind in TestCase.KINDS:
             data = getattr(self, kind)
-            if data is None: continue
-            if kind == 'args': data = TestCase.args2u(data)
             case_path = join(path, TestCase.FORMATS[kind].format(self.name))
+            if data is None:
+                if overwrite and os.access(case_path, os.W_OK):
+                    os.unlink(case_path)
+                    written.append('- {}'.format(basename(case_path)))
+                continue
+            if kind == 'args': data = TestCase.args2u(data)
             if overwrite or not isfile(case_path):
                 try:
                     with io.open(case_path, 'w', encoding = DEFAULT_ENCODING) as f: f.write(data)
-                    written.append(basename(case_path))
+                    written.append('+ {}'.format(basename(case_path)))
                 except IOError as e:
                     if e.errno == EACCES and isfile(case_path): pass
                     else: raise
