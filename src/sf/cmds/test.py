@@ -43,7 +43,8 @@ def main():
         else:
             stderr.write(Fore.BLUE + _('No files written!\n') + Style.RESET_ALL)
 
-    for case in cases.values():
+    for case in sorted(cases.keys()):
+        case = cases[case]
         if case.errors:
             stderr.write(Fore.RED + _('Case {} returned the following errors:\n').format(case.name) + Style.RESET_ALL)
             stderr.write(case.errors)
