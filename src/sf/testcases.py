@@ -64,7 +64,7 @@ class TestCase(object):
 
     def _fill(self, solution, kind, timeout = 0):
         setattr(self, kind, None)
-        result = solution.run(self.args, self.input, timeout)
+        result = solution.run(self.args, self.input, timeout) # should we encode/decode here?
         if result.exception:
             raise result.exception
         if result.returncode:
