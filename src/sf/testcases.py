@@ -22,6 +22,7 @@ def _decode(s):
     return s.decode(DEFAULT_ENCODING)
 
 def _normalized_lines(u):
+    if u is None: return u''
     if not u.endswith('\n'): u += '\n'
     return list(map(lambda _: _.rstrip() + '\n', dedent(u).splitlines(True)))
 
