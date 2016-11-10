@@ -1,6 +1,7 @@
 import io
 from collections import Mapping
 from difflib import context_diff, IS_CHARACTER_JUNK
+from errno import EACCES
 from glob import glob
 from itertools import chain
 from json import dumps
@@ -97,8 +98,12 @@ class TestCase(object):
             if kind == 'args': data = TestCase.args2u(data)
             case_path = join(path, TestCase.FORMATS[kind].format(self.name))
             if overwrite or not isfile(case_path):
-                with io.open(case_path, 'w', encoding = DEFAULT_ENCODING) as f: f.write(data)
-                written.append(basename(case_path))
+                try:
+                    with io.open(case_path, 'w', encoding = DEFAULT_ENCODING) as f: f.write(data)
+                    written.append(basename(case_path))
+                except IOError as e:
+                    if e.errno == EACCES and isfile(case_path): pass
+                    else: raise
         return written
 
     def to_dict(self):
