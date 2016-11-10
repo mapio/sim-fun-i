@@ -12,7 +12,7 @@ COMMANDS = 'compile', 'run', 'generate', 'test', 'tmtest', 'mkresults'
 
 def main():
     if 'SF_DEBUG' not in environ:
-        sys.excepthook = lambda t, v, tb: sys.exit(Fore.RED + _('The following error occurred: ') + Style.RESET_ALL + format_exception_only(t, v)[0])
+        sys.excepthook = lambda t, v, tb: sys.exit(Fore.RED + _('The following error occurred: ') + Style.RESET_ALL + format_exception_only(t, v)[0].strip())
     try:
         subcommand = sys.argv.pop(1)
     except IndexError:
