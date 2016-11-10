@@ -1,11 +1,11 @@
 from os.path import isfile, join
-from re import compile as recompile
+import re
 
 from sf.solution import Solution, execute
 
 class CSolution(Solution):
     SOURCES_GLOB = '*.c'
-    MAIN_SOURCE_RE = recompile(r'int\s+main')
+    MAIN_SOURCE_RE = re.compile(r'int\s+main')
     def __init__(self, path):
         super(CSolution, self).__init__(path)
         self.run_command = ['./soluzione']
