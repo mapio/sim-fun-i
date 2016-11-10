@@ -16,7 +16,7 @@ from sf import DEFAULT_ENCODING, TEST_TIMEOUT, MAX_BYTES_READ
 from sf.solution import ExecutionException
 
 def _encode(u):
-    if u is None: return u''
+    if u is None: return None
     return u.encode(DEFAULT_ENCODING)
 
 def _decode(s):
