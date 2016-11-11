@@ -38,7 +38,7 @@ def main():
     written = cases.write(args.output_dir, not args.no_overwrite)
     if args.verbose:
         if written:
-            stderr.write(Fore.BLUE + _('Written files:\n') + Style.RESET_ALL)
+            stderr.write(Fore.BLUE + _('Modifiled files:\n') + Style.RESET_ALL)
             stderr.write('\t' + '\n\t'.join(written) + '\n')
         else:
-            stderr.write(Fore.BLUE + _('No files written!\n') + Style.RESET_ALL)
+            stderr.write(Fore.BLUE + _('No file has been modified!\n') + Style.RESET_ALL)

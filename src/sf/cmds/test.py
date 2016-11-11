@@ -41,7 +41,7 @@ def main():
             stderr.write(Fore.BLUE + _('Modifiled files:\n') + Style.RESET_ALL)
             stderr.write('\t' + '\n\t'.join(written) + '\n')
         else:
-            stderr.write(Fore.BLUE + _('No files has been modified!\n') + Style.RESET_ALL)
+            stderr.write(Fore.BLUE + _('No file has been modified!\n') + Style.RESET_ALL)
 
     no_problems = True
     for case in sorted(cases.keys()):
