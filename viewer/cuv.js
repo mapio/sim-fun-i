@@ -68,7 +68,7 @@ function update_case( delta ) {
 	$case.text( cur.name );
 	var res = [];
 	$.each( [ 'args', 'input', 'output', 'actual', 'errors', 'diffs' ], function( i, e ) {
-		if ( cur[ e ] != null && cur[ e ] != '' ) res.push(
+		if ( cur[ e ] != null ) res.push(
 			$( '<div/>' ).html(
 				'<span class="label">' + e + '</span>'
 			).append(
