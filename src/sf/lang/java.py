@@ -6,7 +6,7 @@ from sf.solution import Solution, execute
 class JavaSolution(Solution):
     SOURCES_GLOB = '*.java'
     MAIN_SOURCE_RE = re.compile(r'public\s+static\s+void\s+main', re.MULTILINE)
-    MAIN_CLASS_RE = re.compile(r'class\s+(\S+)', re.MULTILINE)
+    MAIN_CLASS_RE = re.compile(r'class\s+(\w+)', re.MULTILINE)
     def __init__(self, path):
         super(JavaSolution, self).__init__(path)
         if self.main_source:
