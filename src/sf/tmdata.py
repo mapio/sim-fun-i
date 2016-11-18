@@ -104,11 +104,15 @@ def tmtest(config, uploads, uid, timestamp = None, clean = True):
     exercises = uploads.untar(uid, timestamp, clean)
     for exercise in exercises:
         exercise_path = join(uploads.path, uid, 'latest', exercise)
+        cases = config.cases(exercise)
+        if cases is None:
+            LOGGER.warn('Missing cases for: {}, in: {}'.format(exercise_path, config.path))
+            continue
         compile_case = TestCase('<COMPILE>')
         solution = autodetect_solution(exercise_path)
         if solution is None:
             compile_case.errors = u'Missing (or ambiguous) solution'
-            LOGGER.warn( 'Missing (or ambiguous) solution in {} for uid {}'.format(exercise, uid))
+            LOGGER.warn('Missing (or ambiguous) solution in {} for uid {}'.format(exercise, uid))
         else:
             compilation_result = solution.compile()
             if compilation_result.returncode:
@@ -117,8 +121,6 @@ def tmtest(config, uploads, uid, timestamp = None, clean = True):
         result = [compile_case.to_dict()]
         if not compile_case.errors:
             LOGGER.info( 'Compiled exercise {} for uid {}'.format(exercise, uid))
-            cases = config.cases(exercise)
-            if cases is None: raise RuntimeError('Missing cases for: {}, in: {}'.format(exercise_path, config.path))
             num_cases = cases.fill_actual(solution)
             LOGGER.info( 'Run {} test cases for {} for uid {}'.format(num_cases, exercise, uid))
             cases.write(exercise_path)
