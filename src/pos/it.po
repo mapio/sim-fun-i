@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: SimFunY 0.1beta\n"
 "Report-Msgid-Bugs-To: massimo.santini@unimi.it\n"
-"POT-Creation-Date: 2016-11-11 15:39+0100\n"
+"POT-Creation-Date: 2016-11-11 23:15+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: Massimo Santini <massimo.santini@unimi.it>\n"
 "Language: it\n"
@@ -85,8 +85,8 @@ msgstr "L'esempio {} ha restituito i seguenti errori:\n"
 
 #: src/sf/cmds/test.py:55
 msgid "Case {} returned the following diffs:\n"
-msgstr "L'esempio {} ha restituito le seguenti differenze:\\N"
+msgstr "L'esempio {} ha restituito le seguenti differenze:\n"
 
 #: src/sf/cmds/test.py:57
 msgid "Cases run with no diffs or errors.\n"
-msgstr "Gli esempi sono stati eseguiti senza errori, o differenze."
+msgstr "Gli esempi sono stati eseguiti senza errori, o differenze.\n"
