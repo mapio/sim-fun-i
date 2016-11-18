@@ -12,7 +12,8 @@ import re
 from shlex import split
 import sys
 from textwrap import dedent
-
+from multiprocessing import Process, Queue
+from Queue import Empty
 from sf import DEFAULT_ENCODING, TEST_TIMEOUT, MAX_BYTES_READ
 from sf.solution import ExecutionException
 
@@ -27,6 +28,26 @@ def _normalized_lines(u):
     if u is None: return u''
     if not u.endswith('\n'): u += '\n'
     return list(map(lambda _: _.rstrip() + '\n', dedent(u).splitlines(True)))
+
+def timed_diffs(name, expected, actual):
+    def _diffs(name, expected, actual, queue):
+        expected = _normalized_lines(expected)
+        actual = _normalized_lines(actual)
+        expected_name = TestCase.FORMATS['output'].format(name)
+        actual_name = TestCase.FORMATS['output'].format(actual)
+        diffs = list(context_diff(expected, actual, expected_name, actual_name))
+        queue.put(u''.join(diffs) if diffs else None)
+    q = Queue()
+    p = Process(target = _diffs, args = (name, expected, actual, q))
+    p.start()
+    try:
+        diffs = q.get(True, TEST_TIMEOUT)
+    except Empty:
+        p.terminate()
+        return u'<<DIFFS TIMEOUT>>\n'
+    p.join()
+    return diffs
+
 
 class TestCase(object):
 
@@ -84,12 +105,7 @@ class TestCase(object):
             self.diffs = None
             self.errors = u'[{}] {}\n'.format(type(e).__name__, str(e).rstrip())
         else:
-            diffs = list(context_diff(
-                _normalized_lines(self.output), _normalized_lines(self.actual),
-                TestCase.FORMATS['output'].format(self.name), TestCase.FORMATS['actual'].format(self.name)
-            ))
-            self.diffs = u''.join(diffs) if diffs else None
-            self.errors = None
+            self.diffs = timed_diffs(self.name, self.output, self.actual)
 
     # writes members to files
     # non-empty members are written if:
