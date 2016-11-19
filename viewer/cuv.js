@@ -9,6 +9,8 @@ var $info, $uid, $exercise, $case, $ip, $identification,
 	$evaluation, $score, $note, $sources, $cases, $summary,
 	$sources_tab, $cases_tab, $summary_tab;
 
+var MAX_NUM_LINES = 50;
+
 var current = { 'uid': 0, 'exercise': 0 };
 
 Mousetrap.bind( 'q', function() { update_uid( -1 ); } );
@@ -68,18 +70,20 @@ function update_case( delta ) {
 	$case.text( cur.name );
 	var res = [];
 	$.each( [ 'args', 'input', 'output', 'actual', 'errors', 'diffs' ], function( i, e ) {
-		if ( cur[ e ] != null ) res.push(
+		if ( cur[ e ] === null ) return;
+		var lines = cur[ e ].split( '\n' );
+		var content = lines.length > MAX_NUM_LINES ? lines.slice( 0, MAX_NUM_LINES ).join( '\n' ) + '\n<<TRUNCATED>>\n': lines.join( '\n' )
+		res.push(
 			$( '<div/>' ).html(
 				'<span class="label">' + e + '</span>'
 			).append(
 				current.case > 0 ?
-					$( '<pre/>' ).html( hljs.highlight( 'diff', cur[ e ] ).value )
+					$( '<pre/>' ).html( hljs.highlight( 'diff', content ).value )
 				:
-					$( '<pre/>' ).text( cur[ e ] )
+					$( '<pre/>' ).text( content )
 			)
 		);
 	} );
-	console.log(cur.diffs);
 	if ( cur.errors != null || cur.diffs != null ) {
 		if ( current.case > 0 )
 			$cases.html( '<div class="alert alert-error">problems found</div>' );
@@ -201,6 +205,7 @@ function setup_summary() {
 
 	var tbody = $( '<tbody/>' );
 	$.each( results, function( uid, res ) {
+		if ( uid == '000000' ) return; // hack to exclude the teacher
 		var tr = $( '<tr data-uid="'+ uid + '"/>');
 		tr.append( $( '<td/>').text( res.signature.uid ) );
 		tr.append( $( '<td/>').text( res.signature.info ) );
