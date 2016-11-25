@@ -34,7 +34,7 @@ def timed_diffs(name, expected, actual):
         expected = _normalized_lines(expected)
         actual = _normalized_lines(actual)
         expected_name = TestCase.FORMATS['output'].format(name)
-        actual_name = TestCase.FORMATS['output'].format(actual)
+        actual_name = TestCase.FORMATS['output'].format(name)
         diffs = list(context_diff(expected, actual, expected_name, actual_name))
         queue.put(u''.join(diffs) if diffs else None)
     q = Queue()
