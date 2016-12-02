@@ -3,3 +3,4 @@ bin/sf
 *.mo
 *.pot
 *.pyc
+local/
