@@ -5,6 +5,7 @@ from traceback import format_exception_only
 
 from colorama import Fore, Style
 
+from sf import VERSION
 from sf.zipgettext import DEFAULT_GETTEXT
 _ = DEFAULT_GETTEXT
 
@@ -18,6 +19,9 @@ def main():
     except IndexError:
         sys.stderr.write(Fore.RED + _('Available subcommsands: {}\n').format(', '.join(COMMANDS)) + Style.RESET_ALL)
         sys.exit(1)
+    if subcommand == 'version':
+        sys.stderr.write(Fore.BLUE + _('Version: {}\n').format(VERSION) + Style.RESET_ALL)
+        sys.exit(0)
     if subcommand not in COMMANDS:
         sys.stderr.write(Fore.RED + _('Unknown subcommand {}; available subcommsands: {}\n').format(subcommand, ', '.join(COMMANDS)) + Style.RESET_ALL)
         sys.exit(1)
