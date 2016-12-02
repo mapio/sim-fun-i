@@ -106,6 +106,7 @@ class TestCase(object):
             self.errors = u'[{}] {}\n'.format(type(e).__name__, str(e).rstrip())
         else:
             self.diffs = timed_diffs(self.name, self.output, self.actual)
+            self.errors = None
 
     # writes members to files
     # non-empty members are written if:
