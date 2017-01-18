@@ -3,9 +3,9 @@ from operator import itemgetter
 from json import loads
 
 from sf import DEFAULT_ENCODING
-from tm.mkresults import TristoMietitoreScanner, main
+from tm.mkresults import TristoMietitoreScanner
 
-class SimfuniScanner( TristoMietitoreScanner ):
+class Scanner(TristoMietitoreScanner):
 
     SHORT_NAME = 'sf'
     SOURCE_PATTERN = r'(?P<uid>.*)/latest/(?P<exercise>.+)/(?P<source>.*\.(c|h|java|sh))$'
