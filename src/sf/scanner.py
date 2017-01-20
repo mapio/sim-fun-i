@@ -11,7 +11,7 @@ class Scanner(TristoMietitoreScanner):
     SOURCE_PATTERN = r'(?P<uid>.*)/latest/(?P<exercise>.+)/(?P<source>.*\.(c|h|java|sh))$'
     CASES_PATTERN = r'(?P<uid>.*)/latest/TEST-(?P<exercise>.+)\.(?P<case>json)$'
 
-    def cases_reader( self, path ):
+    def cases_reader(self, path):
         with io.open(path, 'r', encoding = DEFAULT_ENCODING) as f: cases = loads(f.read())
         return cases
 
