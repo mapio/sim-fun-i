@@ -14,7 +14,7 @@ import sys
 from textwrap import dedent
 from multiprocessing import Process, Queue
 from Queue import Empty
-from sf import DEFAULT_ENCODING, TEST_TIMEOUT, MAX_BYTES_READ
+from sf import DEFAULT_ENCODING, TEST_TIMEOUT, MAX_BYTES_READ, WronglyEncodedFile
 from sf.solution import ExecutionException
 
 def _encode(u):
@@ -78,7 +78,10 @@ class TestCase(object):
         for kind in TestCase.KINDS:
             case_path = join(path, TestCase.FORMATS[kind].format(name))
             if isfile(case_path):
-                with io.open(case_path, 'r', encoding = DEFAULT_ENCODING) as f: data = f.read(MAX_BYTES_READ)
+                try:
+                    with io.open(case_path, 'r', encoding = DEFAULT_ENCODING) as f: data = f.read(MAX_BYTES_READ)
+                except UnicodeDecodeError:
+                    raise WronglyEncodedFile(case_path)
                 if kind == 'args': data = TestCase.u2args(data)
             else:
                 data = None

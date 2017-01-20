@@ -7,7 +7,7 @@ from shlex import split
 import subprocess
 from threading import Timer
 
-from sf import DEFAULT_ENCODING, TEST_TIMEOUT
+from sf import DEFAULT_ENCODING, TEST_TIMEOUT, WronglyEncodedFile
 
 Result = namedtuple('Result','returncode,stdout,stderr,exception')
 
@@ -50,7 +50,10 @@ class Solution(object):
         self.sources = map(basename, glob(join(path,self.SOURCES_GLOB)))
         main_source = []
         for name in self.sources:
-            with io.open(join(path, name), 'r', encoding = DEFAULT_ENCODING) as f: content = f.read()
+            try:
+                with io.open(join(path, name), 'r', encoding = DEFAULT_ENCODING) as f: content = f.read()
+            except UnicodeDecodeError:
+                raise WronglyEncodedFile(join(path, name))
             if self.MAIN_SOURCE_RE.search(content): main_source.append((name, content))
         self.main_source = main_source[0] if len(main_source) == 1 else None
 
