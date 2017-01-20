@@ -78,7 +78,7 @@ class TestCase(object):
         for kind in TestCase.KINDS:
             case_path = join(path, TestCase.FORMATS[kind].format(name))
             if isfile(case_path):
-                with io.open(case_path, 'rU', encoding = DEFAULT_ENCODING) as f: data = f.read(MAX_BYTES_READ)
+                with io.open(case_path, 'r', encoding = DEFAULT_ENCODING) as f: data = f.read(MAX_BYTES_READ)
                 if kind == 'args': data = TestCase.u2args(data)
             else:
                 data = None
