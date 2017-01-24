@@ -96,8 +96,8 @@ class TestCase(object):
             raise ExecutionException('Exit status: {} (non-zero), errors: "{}"'.format(result.returncode, result.stderr))
         setattr(self, kind, _decode(result.stdout))
 
-    def fill_output(self, solution):
-        self._fill(solution, 'output')
+    def fill_output(self, solution, timeout = 0):
+        self._fill(solution, 'output', timeout)
         self.errors = None
         self.diffs = None
 
@@ -182,9 +182,9 @@ class TestCases(Mapping):
             n += 1
         return n
 
-    def fill_output(self, solution):
+    def fill_output(self, solution, timeout = 0):
         for case in self.cases.values():
-            case.fill_output(solution)
+            case.fill_output(solution, timeout)
 
     def write(self, path, overwrite = False):
         written = []
