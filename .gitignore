@@ -1,6 +1,6 @@
+local
+release
+src/pos/*.mo
+src/pos/*.pot
 vendor
-bin/sf
-*.mo
-*.pot
 *.pyc
-local/

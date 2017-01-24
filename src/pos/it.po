@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: SimFunY 0.1beta\n"
 "Report-Msgid-Bugs-To: massimo.santini@unimi.it\n"
-"POT-Creation-Date: 2016-11-11 23:15+0100\n"
+"POT-Creation-Date: 2017-01-23 21:46+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: Massimo Santini <massimo.santini@unimi.it>\n"
 "Language: it\n"
@@ -19,19 +19,23 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Generated-By: Babel 2.3.4\n"
 
-#: src/sf/cmds/__init__.py:15
+#: src/sf/cmds/__init__.py:16
 msgid "The following error occurred: "
 msgstr "Si è verificato il seguente errore: "
 
-#: src/sf/cmds/__init__.py:19
+#: src/sf/cmds/__init__.py:20
 msgid "Available subcommsands: {}\n"
 msgstr "Comandi disponibili: {}\n"
 
-#: src/sf/cmds/__init__.py:22
+#: src/sf/cmds/__init__.py:23
+msgid "Version: {}\n"
+msgstr "Versione: {}\n"
+
+#: src/sf/cmds/__init__.py:26
 msgid "Unknown subcommand {}; available subcommsands: {}\n"
 msgstr "Comando sconoscituo {}; comandi disponibili: {}\n"
 
-#: src/sf/cmds/__init__.py:27
+#: src/sf/cmds/__init__.py:31
 msgid "Premature exit!\n"
 msgstr "Arresto forzato!\n"
 

@@ -14,9 +14,12 @@ with open('src/sf/__init__.py') as f:
     exec f.read() in g, l
 with open('src/sf/__init__.py', 'w') as f:
     for k in sorted(l):
+        if k == 'WronglyEncodedFile':
+            continue
         if k == 'VERSION':
             v = semver.bump_${what}(l[k])
         else:
             v = l[k]
         f.write('{} = {}\n'.format(k, repr(v)))
+    f.write('\nclass WronglyEncodedFile(UnicodeError):\n    pass\n')
 EOF
