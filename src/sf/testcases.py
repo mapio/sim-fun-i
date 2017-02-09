@@ -33,7 +33,7 @@ def timed_diffs(name, expected, actual):
     def _diffs(name, expected, actual, queue):
         expected = _normalized_lines(expected)
         actual = _normalized_lines(actual)
-        expected_name = TestCase.FORMATS['output'].format(name)
+        expected_name = TestCase.FORMATS['expected'].format(name)
         actual_name = TestCase.FORMATS['actual'].format(name)
         diffs = list(context_diff(expected, actual, expected_name, actual_name))
         queue.put(u''.join(diffs) if diffs else None)
@@ -51,7 +51,7 @@ def timed_diffs(name, expected, actual):
 
 class TestCase(object):
 
-    KINDS = 'args input output actual errors diffs'.split() # kept internally as unicode
+    KINDS = 'args input expected actual errors diffs'.split() # kept internally as unicode
     FORMATS = dict((kind, '{}-{{}}.txt'.format(kind)) for kind in KINDS)
     GLOBS = dict((kind, '{}-*.txt'.format(kind)) for kind in KINDS)
     TEST_NUM_RE = re.compile(r'(?:{})-(.+)\.txt'.format('|'.join(KINDS)))
@@ -96,8 +96,8 @@ class TestCase(object):
             raise ExecutionException('Exit status: {} (non-zero), errors: "{}"'.format(result.returncode, result.stderr))
         setattr(self, kind, _decode(result.stdout))
 
-    def fill_output(self, solution, timeout = 0):
-        self._fill(solution, 'output', timeout)
+    def fill_expected(self, solution, timeout = 0):
+        self._fill(solution, 'expected', timeout)
         self.errors = None
         self.diffs = None
 
@@ -108,7 +108,7 @@ class TestCase(object):
             self.diffs = None
             self.errors = u'[{}] {}\n'.format(type(e).__name__, str(e).rstrip())
         else:
-            self.diffs = timed_diffs(self.name, self.output, self.actual)
+            self.diffs = timed_diffs(self.name, self.expected, self.actual)
             self.errors = None
 
     # writes members to files
@@ -182,9 +182,9 @@ class TestCases(Mapping):
             n += 1
         return n
 
-    def fill_output(self, solution, timeout = 0):
+    def fill_expected(self, solution, timeout = 0):
         for case in self.cases.values():
-            case.fill_output(solution, timeout)
+            case.fill_expected(solution, timeout)
 
     def write(self, path, overwrite = False):
         written = []

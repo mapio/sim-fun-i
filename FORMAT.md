@@ -25,7 +25,7 @@ CASE := { # these fields are TestCase.KINDS
     'name': <CASE_NAME>,
     'args': <ARGS_CONTENT>,
     'input': <INPUT_CONTENT>,
-    'output': <OUTPUT_CONTENT>,
+    'expected': <EXPECTED_CONTENT>,
     'actual': <ACTUAL_CONTENT>,
     'diffs': <DIFFS_CONTENT>,
     'errors': <ERRORS_CONTENT>

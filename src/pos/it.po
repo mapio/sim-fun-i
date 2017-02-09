@@ -60,8 +60,8 @@ msgid "Execution returned the following errors:\n"
 msgstr "L'esecuzione ha dato i seguenti errori:\n"
 
 #: src/sf/cmds/generate.py:36
-msgid "Generated output for cases: {}\n"
-msgstr "Output generato per i casi: {}\n"
+msgid "Generated expected output for cases: {}\n"
+msgstr "Output atteso generato per i casi: {}\n"
 
 #: src/sf/cmds/generate.py:41 src/sf/cmds/test.py:41
 msgid "Modifiled files:\n"
@@ -80,8 +80,8 @@ msgid "Execution returned non-zero exit code:\n"
 msgstr "L'esecuzione ha dato un valor di uscita non nullo:\n"
 
 #: src/sf/cmds/test.py:36
-msgid "Generated actual for cases: {}\n"
-msgstr "File dello studente generati per i casi: {}\n"
+msgid "Generated actual output for cases: {}\n"
+msgstr "Output dello studente generati per i casi: {}\n"
 
 #: src/sf/cmds/test.py:51
 msgid "Case {} returned the following errors:\n"
