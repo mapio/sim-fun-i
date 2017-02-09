@@ -5,14 +5,14 @@ teardown() {
 }
 
 @test "compiling 'empty' (missing source)" {
-  cd fixtures/empty
+  cd $FIXTURES/empty
   run sf compile
   [ "$status" -eq 1 ]
   [[ ${lines[0]} =~ .*"No source file found".* ]]
 }
 
 @test "compiling 'sum' (a correct program)" {
-  cd fixtures/java/sum
+  cd $FIXTURES/java/sum
   run sf compile
   [ "$status" -eq 0 ]
   [[ ${lines[0]} =~ .*"Using processor: JavaSolution".* ]]
@@ -20,14 +20,14 @@ teardown() {
 }
 
 @test "compiling 'sum_mismatch' (public class, file/class name mismatch)" {
-  cd fixtures/java/sum_mismatch
+  cd $FIXTURES/java/sum_mismatch
   run sf compile
   [ "$status" -eq 1 ]
   [[ ${lines[2]} =~ .*"Nope.java:3: error: class Solution is public, should be declared in a file named Solution.java".* ]]
 }
 
 @test "compiling 'sum_nonpublic' (non public class)" {
-  cd fixtures/java/sum_nonpublic
+  cd $FIXTURES/java/sum_nonpublic
   run sf compile
   [ "$status" -eq 0 ]
   [[ ${lines[0]} =~ .*"Using processor: JavaSolution".* ]]
@@ -35,14 +35,14 @@ teardown() {
 }
 
 @test "compiling 'sum_nomain' (public class, no main method)" {
-  cd fixtures/java/sum_nomain
+  cd $FIXTURES/java/sum_nomain
   run sf compile
   [ "$status" -eq 1 ]
   [[ ${lines[0]} =~ .*"No source file found".* ]]
 }
 
 @test "generating 'sum' output" {
-  cd fixtures/java/sum
+  cd $FIXTURES/java/sum
   run sf generate -f
   [ "$status" -eq 0 ]
   [ -r expected-1.txt ]
@@ -55,7 +55,7 @@ teardown() {
 }
 
 @test "testing 'sum' output" {
-  cd fixtures/java/sum
+  cd $FIXTURES/java/sum
   sf generate -f
   run sf test -f
   [ ! -r diffs-1.txt ]
@@ -71,7 +71,7 @@ teardown() {
 }
 
 @test "diffing 'sum_diff' differences" {
-  cd fixtures/java/sum_diffs
+  cd $FIXTURES/java/sum_diffs
   run sf test -f
   [ -r diffs-1.txt ]
   [ -r diffs-2.txt ]
