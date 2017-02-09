@@ -9,7 +9,7 @@ fi
 
 if [ ! -r ../release/sf ]; then
     echocol "Compiling sf..."
-    (cd .. && ./bin/mkdist)
+    ./bin/mkdist
 fi
 export PATH="$PATH:$(pwd)/../release/"
 
