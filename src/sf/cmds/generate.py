@@ -17,7 +17,7 @@ def main():
     parser.add_argument('--solution-dir', '-s', help = 'The directory where the solution is to be found.', default = '.')
     parser.add_argument('--force-compile', '-f', help = 'Whether to force a compilation before generating the expected outputs.', default = False, action = 'store_true')
     parser.add_argument('--cases-dir', '-c', help = 'The directory where the test cases are to be found.')
-    parser.add_argument('--expected-dir', '-o', help = 'The direcotry where to write the generated expected output files.')
+    parser.add_argument('--expected-dir', '-e', help = 'The direcotry where to write the generated expected output files.')
     parser.add_argument('--no-overwrite', '-n', help = 'Whether to overwrite the expected output files, if present.', default = False, action = 'store_true')
     parser.add_argument('--timeout', '-t', help = 'The time allowed for a case generation (default: 0 meaning no timeout).', default = 0)
     parser.add_argument('--verbose', '-v', help = 'Whether to give verbose output.', default = False, action = 'store_true')
