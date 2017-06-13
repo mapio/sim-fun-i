@@ -29,13 +29,13 @@ def json_dump(data, path):
     with io.open(path, 'w', encoding = DEFAULT_ENCODING) as f: f.write(dumps(data, ensure_ascii = False, sort_keys = True, indent = 4))
 
 def rmrotree( path ):
-	def _oe(f, p, e):
-		if p == path: return
-		pp = dirname(p)
-		chmod(pp, 0700)
-		chmod(p, 0700)
-		unlink(p)
-	rmtree(path, onerror = _oe)
+    def _oe(f, p, e):
+        if p == path: return
+        pp = dirname(p)
+        chmod(pp, 0700)
+        chmod(p, 0700)
+        unlink(p)
+    rmtree(path, onerror = _oe)
 
 
 class TristoMietitoreConfig(object):
@@ -86,18 +86,24 @@ class TristoMietitoreUploads(object):
     def untar(self, uid, timestamp = None, clean = True):
         if timestamp is None: timestamp = max(self.uid2timestamps[uid])
         dest_dir = join(self.path, uid, timestamp)
-    	if not clean and isdir(dest_dir):
+        if not clean and isdir(dest_dir):
             LOGGER.info( 'Upload for uid {} skipped ({})'.format(uid, isots(timestamp)))
             exercises = []
         else:
             rmrotree(dest_dir)
             makedirs(dest_dir, 0700) # to have a placemark in case of empty tars
-            with TarFile.open(join(self.path, uid, timestamp + '.tar'), mode = 'r') as tf: tf.extractall(dest_dir)
-    	    LOGGER.info( 'Upload for uid {} untarred ({})'.format(uid, isots(timestamp)))
-            exercises = map(basename, filter(isdir, glob(join(dest_dir, '*'))))
-        latest = join(self.path, uid, 'latest')
-    	if islink(latest): unlink(latest)
-    	symlink(timestamp, latest)
+            try:
+                with TarFile.open(join(self.path, uid, timestamp + '.tar'), mode = 'r') as tf: tf.extractall(dest_dir)
+            except IOError:
+                rmrotree(dest_dir) # in case the user specified UID or timestamp are not correct
+                LOGGER.error( 'Failed to untar upload for uid {} at timestamp {} ({})'.format(uid, timestamp, isots(timestamp)))
+                exercises = []
+            else:
+                LOGGER.info( 'Upload for uid {} untarred ({})'.format(uid, isots(timestamp)))
+                exercises = map(basename, filter(isdir, glob(join(dest_dir, '*'))))
+        latest = join(self.path, uid, 'latest') # latest is to be understood as the latest tested, not latest uddated (in case the timestamp is given by the caller)
+        if islink(latest): unlink(latest)
+        symlink(timestamp, latest)
         return exercises
 
 def tmtest(config, uploads, uid, timestamp = None, clean = True):
