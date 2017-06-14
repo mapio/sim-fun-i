@@ -10,6 +10,6 @@ class CSolution(Solution):
         super(CSolution, self).__init__(path)
         self.run_command = ['./soluzione']
     def compile(self):
-        return execute(['gcc', '-o', 'soluzione'], args = self.sources, cwd = self.path)
+        return execute(['gcc', '-lm', '-o', 'soluzione'], args = self.sources, cwd = self.path)
     def is_compiled(self):
         return isfile(join(self.path, 'soluzione'))
