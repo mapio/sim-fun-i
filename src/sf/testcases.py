@@ -104,7 +104,7 @@ class TestCase(object):
     def fill_actual(self, solution):
         try:
             self._fill(solution, 'actual', TEST_TIMEOUT)
-        except ExecutionException as e:
+        except (ExecutionException, UnicodeError) as e:
             self.diffs = None
             self.errors = u'[{}] {}\n'.format(type(e).__name__, str(e).rstrip())
         else:
