@@ -87,6 +87,18 @@ class TestCase(object):
                 data = None
             setattr(self, kind, data)
 
+    @classmethod
+    def from_dict(cls, dct):
+        tc = cls(dct['name'])
+        for kind in TestCase.KINDS:
+            try:
+                data = dct[kind]
+                if kind == 'args': data = TestCase.u2args(data)
+                setattr(tc, kind, data)
+            except KeyError:
+                pass
+        return tc
+
     def _fill(self, solution, kind, timeout = 0):
         setattr(self, kind, None)
         result = solution.run(self.args, self.input, timeout) # should we encode/decode here?
@@ -137,9 +149,10 @@ class TestCase(object):
                     else: raise
         return written
 
-    def to_dict(self):
+    def to_dict(self, kinds_to_skip = ()):
         result = {'name': self.name}
         for kind in TestCase.KINDS:
+            if kind in kinds_to_skip: continue
             data = getattr(self, kind)
             if kind == 'args': data = TestCase.args2u(data)
             result[kind] = data
@@ -154,17 +167,24 @@ class TestCase(object):
 
 class TestCases(Mapping):
 
-    def __init__(self, path_or_dict = '.'):
-        if isinstance(path_or_dict, dict):
-            self.path = '<TAR_DATA>'
-            self.cases = path_or_dict
-        else:
-            self.path = path_or_dict
-            cases_paths = chain(*map(glob, (join(self.path, TestCase.GLOBS[kind]) for kind in TestCase.KINDS)))
-            names = set()
-            for case_path in cases_paths:
-                names.add(TestCase.TEST_NUM_RE.match(basename(case_path)).group(1))
-            self.cases = dict((name, TestCase(name, self.path)) for name in names)
+    def __init__(self, path = None):
+        self.path = path
+        if path is None:
+            self.cases = {}
+            return
+        cases_paths = chain(*map(glob, (join(self.path, TestCase.GLOBS[kind]) for kind in TestCase.KINDS)))
+        names = set()
+        for case_path in cases_paths:
+            names.add(TestCase.TEST_NUM_RE.match(basename(case_path)).group(1))
+        self.cases = dict((name, TestCase(name, self.path)) for name in names)
+
+    @classmethod
+    def from_list_of_dicts(cls, lst):
+        tcs = TestCases()
+        for cases_dict in lst:
+            tc = TestCase.from_dict(cases_dict)
+            tcs.cases[tc.name] = tc
+        return tcs
 
     def __getitem__(self, key):
         return self.cases[key]
@@ -192,8 +212,8 @@ class TestCases(Mapping):
             written.extend(case.write(path, overwrite))
         return written
 
-    def to_list_of_dicts(self):
-        return [case.to_dict() for case in self.cases.values()]
+    def to_list_of_dicts(self, kinds_to_skip = ()):
+        return [case.to_dict(kinds_to_skip) for case in self.cases.values()]
 
     def __str__(self):
         result = [ 'Path: {}'.format(self.path) ]
