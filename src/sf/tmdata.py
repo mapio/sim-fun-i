@@ -18,7 +18,7 @@ LOGGER = getLogger(__name__)
 
 from sf import DEFAULT_ENCODING
 from sf.solution import autodetect_solution, ExecutionException
-from sf.testcases import TestCase, TestCases, DEFAULT_ENCODING
+from sf.testcases import TestCase, TestCases
 
 UID_TIMESTAMP_RE = re.compile( r'.*/(?P<uid>.+)/(?P<timestamp>[0-9]+)\.tar' )
 
