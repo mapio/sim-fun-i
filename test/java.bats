@@ -8,7 +8,7 @@ teardown() {
   cd $FIXTURES/empty
   run sf compile
   [ "$status" -eq 1 ]
-  [[ ${lines[0]} =~ .*"No source file found".* ]]
+  [[ ${lines[0]} =~ .*"No main source file found".* ]]
 }
 
 @test "compiling 'sum' (a correct program)" {
@@ -38,7 +38,7 @@ teardown() {
   cd $FIXTURES/java/sum_nomain
   run sf compile
   [ "$status" -eq 1 ]
-  [[ ${lines[0]} =~ .*"No source file found".* ]]
+  [[ ${lines[0]} =~ .*"No main source file found".* ]]
 }
 
 @test "generating 'sum' output" {
