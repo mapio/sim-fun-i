@@ -116,7 +116,7 @@ def tmtest(config, uploads, uid, timestamp = None, clean = True):
             continue
         compile_case = TestCase('<COMPILE>')
         solution = autodetect_solution(exercise_path)
-        if solution is None:
+        if solution.main_source is None:
             compile_case.errors = u'Missing (or ambiguous) solution'
             LOGGER.warn('Missing (or ambiguous) solution in {} for uid {}'.format(exercise, uid))
         else:

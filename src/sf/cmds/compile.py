@@ -12,8 +12,8 @@ _ = DEFAULT_GETTEXT
 
 def detect_and_compile(path, compile = True, quiet = False):
     solution = autodetect_solution(path)
-    if solution is None:
-        stderr.write(Fore.RED + _('No source file found!\n') + Style.RESET_ALL)
+    if solution.main_source is None:
+        stderr.write(Fore.RED + _('No main source file found!\n') + Style.RESET_ALL)
         exit(1)
     if not quiet: stderr.write(Fore.BLUE + _('Using processor: {}\n').format(solution.NAME) + Style.RESET_ALL)
     if compile:

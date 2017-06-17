@@ -6,7 +6,6 @@ from sys import argv, stderr, exit
 from colorama import Fore, Style
 
 from sf.cmds.compile import detect_and_compile
-from sf.solution import autodetect_solution
 
 from sf.zipgettext import DEFAULT_GETTEXT
 _ = DEFAULT_GETTEXT

@@ -40,8 +40,8 @@ msgid "Premature exit!\n"
 msgstr "Arresto forzato!\n"
 
 #: src/sf/cmds/compile.py:16
-msgid "No source file found!\n"
-msgstr "Nessun file sorgente trovato!\n"
+msgid "No main source file found!\n"
+msgstr "Nessun file sorgente principale trovato!\n"
 
 #: src/sf/cmds/compile.py:18
 msgid "Using processor: {}\n"

@@ -11,11 +11,14 @@ from sf import DEFAULT_ENCODING, TEST_TIMEOUT, WronglyEncodedFile
 
 Result = namedtuple('Result','returncode,stdout,stderr,exception')
 
+
 class ExecutionException(Exception):
     pass
 
+
 class NotCompiledException(ExecutionException):
     pass
+
 
 class TimeoutException(ExecutionException):
     pass
@@ -65,10 +68,16 @@ class Solution(object):
     def __str__(self):
         return 'Lang: {}, Path: {}, Sources: {}'.format(self.NAME, self.path, ' ,'.join(self.sources))
 
+class NoSolution(Solution):
+    def __init__(self):
+        self.NAME = type(self).__name__
+        self.sources = None
+        self.main_source = None
+
 from sf.lang import JavaSolution, CSolution, ShSolution
 
 def autodetect_solution(path = '.'):
     for cls in JavaSolution, CSolution, ShSolution:
         solution = cls(path)
-        if solution.main_source: return solution
-    return None
+        if solution.sources: return solution
+    return NoSolution
