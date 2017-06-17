@@ -80,4 +80,4 @@ def autodetect_solution(path = '.'):
     for cls in JavaSolution, CSolution, ShSolution:
         solution = cls(path)
         if solution.sources: return solution
-    return NoSolution
+    return NoSolution()
