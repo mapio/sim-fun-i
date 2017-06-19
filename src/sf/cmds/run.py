@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 from argparse import ArgumentParser, REMAINDER
-from sys import argv, stderr, exit
+from sys import stderr, exit
 
 from colorama import Fore, Style
 
