@@ -24,7 +24,7 @@ teardown() {
   run sf compile
   echo "actual output is: $output"
   [ "$status" -eq 1 ]
-  [[ $output =~ .*"Nope.java:3: error: class Solution is public, should be declared in a file named Solution.java".* ]]
+  [[ ${lines[2]} =~ .*"Nope.java:3: error: class Solution is public, should be declared in a file named Solution.java".* ]]
 }
 
 @test "compiling 'sum_nonpublic' (non public class)" {
