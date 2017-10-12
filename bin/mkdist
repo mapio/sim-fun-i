@@ -62,3 +62,7 @@ cat $tempdir/sf.zip >> $(pwd)/release/sf
 chmod u+rx $(pwd)/release/sf
 
 rm -rf $tempdir
+
+echocol "Built version is"
+
+./release/sf version
