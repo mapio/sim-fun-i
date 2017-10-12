@@ -22,7 +22,8 @@ teardown() {
 @test "compiling 'sum_mismatch' (public class, file/class name mismatch)" {
   cd $FIXTURES/java/sum_mismatch
   run sf compile
-  [ "$status" -eq 1 ]
+  echo "actual output is: $output"
+  [ "$status" -eq 0 ]
   [[ ${lines[2]} =~ .*"Nope.java:3: error: class Solution is public, should be declared in a file named Solution.java".* ]]
 }
 
