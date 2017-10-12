@@ -3,4 +3,4 @@ language: python
 python: "2.7"
 script: ./test/run.sh
 before_script:
-  - _JAVA_OPTIONS=
+  - unset _JAVA_OPTIONS
