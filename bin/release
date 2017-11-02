@@ -1,0 +1,7 @@
+#!/bin/bash
+
+unset rgit
+version=$(grep 'VERSION\s*=' ./src/sf/__init__.py | cut -d= -f2 | tr -d "' ")
+
+./bin/mkdist
+gh-release create scythe-suite/sim-fun-i v${version}

@@ -1,5 +1,5 @@
 local
-release
+release/
 src/pos/*.mo
 src/pos/*.pot
 vendor
