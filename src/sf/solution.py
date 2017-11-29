@@ -74,10 +74,10 @@ class NoSolution(Solution):
         self.sources = None
         self.main_source = None
 
-from sf.lang import JavaSolution, CSolution, ShSolution
+from sf.lang import JavaTestRunnerSolution, JavaSolution, CSolution, ShSolution
 
 def autodetect_solution(path = '.'):
-    for cls in JavaSolution, CSolution, ShSolution:
+    for cls in JavaTestRunnerSolution, JavaSolution, CSolution, ShSolution:
         solution = cls(path)
-        if solution.sources: return solution
+        if solution.main_source: return solution
     return NoSolution()

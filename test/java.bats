@@ -41,6 +41,13 @@ teardown() {
   [[ ${lines[0]} =~ .*"No main source file found".* ]]
 }
 
+@test "compiling 'sum_testrunner' (a correct program, with a TestRunner class)" {
+  cd $FIXTURES/java/sum_testrunner
+  run sf compile
+  [ "$status" -eq 0 ]
+  [[ ${lines[0]} =~ .*"Using processor: JavaTestRunnerSolution".* ]]
+}
+
 @test "generating 'sum' output" {
   cd $FIXTURES/java/sum
   run sf generate -f
@@ -70,6 +77,18 @@ teardown() {
   [[ ${lines[3]} =~ .*"Cases run with no diffs or errors".* ]]
 }
 
+@test "testing 'sum_testrunner' output" {
+  cd $FIXTURES/java/sum_testrunner
+  run sf test -f
+  [ ! -r diffs-1.txt ]
+  [ ! -r diffs-2.txt ]
+  [ ! -r errors-1.txt ]
+  [ ! -r errors-2.txt ]
+  [ "$status" -eq 0 ]
+  [[ ${lines[0]} =~ .*"Using processor: JavaTestRunnerSolution".* ]]
+  [[ ${lines[3]} =~ .*"Cases run with no diffs or errors".* ]]
+}
+
 @test "diffing 'sum_diff' differences" {
   cd $FIXTURES/java/sum_diffs
   run sf test -f
@@ -77,8 +96,6 @@ teardown() {
   [ -r diffs-2.txt ]
   [ ! -r errors-1.txt ]
   [ ! -r errors-2.txt ]
-  echo "${lines[5]}" | nl -v0 > /tmp/out
-  echo "$output" | nl -v0 >> /tmp/out
   [ "$status" -eq 0 ]
   [[ ${lines[0]} =~ .*"Using processor: JavaSolution".* ]]
   [[ ${lines[1]} =~ .*"Succesfully compiled sources: Solution.java".* ]]
