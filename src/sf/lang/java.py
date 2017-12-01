@@ -22,7 +22,10 @@ class JavaSolution(Solution):
                     self.main_class = match.group(1)
                 else:
                     self.main_class, self.main_source = None, None
-            self.run_command = ['java', '-Duser.language=ROOT', self.main_class]
+            if self.main_class == 'TestRunner':
+                self.main_class, self.main_source = None, None
+            else:
+                self.run_command = ['java', '-Duser.language=ROOT', self.main_class]
     def compile(self):
         return execute(['javac'], args = self.sources, cwd = self.path)
     def is_compiled(self):
