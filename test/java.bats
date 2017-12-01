@@ -48,6 +48,14 @@ teardown() {
   [[ ${lines[0]} =~ .*"Using processor: JavaTestRunnerSolution".* ]]
 }
 
+@test "compiling 'sum_faketestrunner' (a solution called TestRunner, but not actually a JavaTestRunnerSolution)" {
+  cd $FIXTURES/java/sum_faketestrunner
+  run sf compile
+  [ "$status" -eq 0 ]
+  [[ ${lines[0]} =~ .*"Using processor: JavaSolution".* ]]
+}
+
+
 @test "generating 'sum' output" {
   cd $FIXTURES/java/sum
   run sf generate -f
