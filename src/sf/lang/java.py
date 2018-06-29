@@ -40,7 +40,7 @@ class JavaTestRunnerSolution(JavaSolution):
             for name in self.sources:
                 if name == 'TestRunner.java':
                     try:
-                        with io.open(join(path, name), 'r', encoding = DEFAULT_ENCODING) as f: content = f.read()
+                        with io.open(join(path, name), 'r', encoding = DEFAULT_ENCODING, errors = 'replace') as f: content = f.read()
                     except UnicodeDecodeError:
                         raise WronglyEncodedFile(join(path, name))
                     self.main_source = (name, content)

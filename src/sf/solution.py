@@ -54,7 +54,7 @@ class Solution(object):
         main_source = []
         for name in self.sources:
             try:
-                with io.open(join(path, name), 'r', encoding = DEFAULT_ENCODING) as f: content = f.read()
+                with io.open(join(path, name), 'r', encoding = DEFAULT_ENCODING, errors = 'replace') as f: content = f.read()
             except UnicodeDecodeError:
                 raise WronglyEncodedFile(join(path, name))
             if self.MAIN_SOURCE_RE.search(content): main_source.append((name, content))
