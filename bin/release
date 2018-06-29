@@ -1,7 +1,27 @@
 #!/bin/bash
 
-unset rgit
-version=$(grep 'VERSION\s*=' ./src/sf/__init__.py | cut -d= -f2 | tr -d "' ")
+version="v$(grep 'VERSION\s*=' ./src/sf/__init__.py | cut -d= -f2 | tr -d "' ")"
 
 ./bin/mkdist
-gh-release create scythe-suite/sim-fun-i v${version}
+
+git tag $version
+git push --tags
+
+github-release release \
+    --user scythe-suite \
+    --repo sim-fun-i \
+    --tag $version \
+    --name "$1" \
+    --description "$2" \
+
+github-release upload \
+    --user scythe-suite \
+    --repo sim-fun-i \
+    --tag $version \
+    --name sf \
+    --file ./release/sf
+
+github-release info \
+    --user scythe-suite \
+    --repo sim-fun-i \
+    --tag $version
