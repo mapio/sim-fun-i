@@ -50,7 +50,7 @@ class Solution(object):
     def __init__(self, path):
         self.NAME = type(self).__name__
         self.path = path
-        self.sources = map(basename, glob(join(path, self.SOURCES_GLOB)))
+        self.sources = list(map(basename, glob(join(path, self.SOURCES_GLOB))))
         main_source = []
         for name in self.sources:
             try:

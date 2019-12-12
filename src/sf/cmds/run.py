@@ -30,4 +30,4 @@ def main():
         stderr.write(result.stderr)
         exit(result.returncode)
 
-    print result.stdout,
+    print(result.stdout, end=' ')

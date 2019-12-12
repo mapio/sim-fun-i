@@ -5,6 +5,6 @@ export PYTHONPATH=./vendor
 for po in ./src/pos/*.po; do
 	bn=${po##*/}
 	lang=${bn%.po}
-	python -m babel.messages.frontend extract -F ./etc/pybabel.cfg ./src/sf -o ./src/pos/$lang.pot
-	python -m babel.messages.frontend update  -i ./src/pos/$lang.pot -l $lang -o ./src/pos/$lang.po
+	python3 -m babel.messages.frontend extract -F ./etc/pybabel.cfg ./src/sf -o ./src/pos/$lang.pot
+	python3 -m babel.messages.frontend update  -i ./src/pos/$lang.pot -l $lang -o ./src/pos/$lang.po
 done

@@ -13,7 +13,7 @@ from shlex import split
 import sys
 from textwrap import dedent
 from multiprocessing import Process, Queue
-from Queue import Empty
+from queue import Empty
 from sf import DEFAULT_ENCODING, TEST_TIMEOUT, MAX_BYTES_READ, WronglyEncodedFile
 from sf.solution import ExecutionException
 
@@ -25,9 +25,9 @@ def _decode(s):
     return s.decode(DEFAULT_ENCODING)
 
 def _normalized_lines(u):
-    if u is None: return u''
+    if u is None: return ''
     if not u.endswith('\n'): u += '\n'
-    return list(map(lambda _: _.rstrip() + '\n', dedent(u).splitlines(True)))
+    return list([_.rstrip() + '\n' for _ in dedent(u).splitlines(True)])
 
 def timed_diffs(name, expected, actual):
     def _diffs(name, expected, actual, queue):
@@ -36,7 +36,7 @@ def timed_diffs(name, expected, actual):
         expected_name = TestCase.FORMATS['expected'].format(name)
         actual_name = TestCase.FORMATS['actual'].format(name)
         diffs = list(context_diff(expected, actual, expected_name, actual_name))
-        queue.put(u''.join(diffs) if diffs else None)
+        queue.put(''.join(diffs) if diffs else None)
     q = Queue()
     p = Process(target = _diffs, args = (name, expected, actual, q))
     p.start()
@@ -44,7 +44,7 @@ def timed_diffs(name, expected, actual):
         diffs = q.get(True, TEST_TIMEOUT)
     except Empty:
         p.terminate()
-        return u'<<DIFFS TIMEOUT>>\n'
+        return '<<DIFFS TIMEOUT>>\n'
     p.join()
     return diffs
 
@@ -59,14 +59,14 @@ class TestCase(object):
     @staticmethod
     def u2args(u):
         if u:
-            return map(_decode, split(_encode(u), posix=True))
+            return list(map(_decode, split(_encode(u), posix=True)))
         else:
             return None
 
     @staticmethod
     def args2u(args):
         if args:
-            return _decode(' '.join(map(quote, map(_encode, args))) + '\n')
+            return _decode(' '.join(map(quote, list(map(_encode, args)))) + '\n')
         else:
             return None
 
@@ -118,7 +118,7 @@ class TestCase(object):
             self._fill(solution, 'actual', TEST_TIMEOUT)
         except (ExecutionException, UnicodeError) as e:
             self.diffs = None
-            self.errors = u'[{}] {}\n'.format(type(e).__name__, str(e).rstrip())
+            self.errors = '[{}] {}\n'.format(type(e).__name__, str(e).rstrip())
         else:
             self.diffs = timed_diffs(self.name, self.expected, self.actual)
             self.errors = None
@@ -172,7 +172,7 @@ class TestCases(Mapping):
         if path is None:
             self.cases = {}
             return
-        cases_paths = chain(*map(glob, (join(self.path, TestCase.GLOBS[kind]) for kind in TestCase.KINDS)))
+        cases_paths = chain(*list(map(glob, (join(self.path, TestCase.GLOBS[kind]) for kind in TestCase.KINDS))))
         names = set()
         for case_path in cases_paths:
             names.add(TestCase.TEST_NUM_RE.match(basename(case_path)).group(1))
@@ -197,23 +197,23 @@ class TestCases(Mapping):
 
     def fill_actual(self, solution):
         n = 0
-        for case in self.cases.values():
+        for case in list(self.cases.values()):
             case.fill_actual(solution)
             n += 1
         return n
 
     def fill_expected(self, solution, timeout = 0):
-        for case in self.cases.values():
+        for case in list(self.cases.values()):
             case.fill_expected(solution, timeout)
 
     def write(self, path, overwrite = False):
         written = []
-        for case in self.cases.values():
+        for case in list(self.cases.values()):
             written.extend(case.write(path, overwrite))
         return written
 
     def to_list_of_dicts(self, kinds_to_skip = ()):
-        return [case.to_dict(kinds_to_skip) for case in self.cases.values()]
+        return [case.to_dict(kinds_to_skip) for case in list(self.cases.values())]
 
     def __str__(self):
         result = [ 'Path: {}'.format(self.path) ]
