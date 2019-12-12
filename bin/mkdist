@@ -17,16 +17,19 @@ mkdir -p ./vendor
 echocol "Vendorizing [begin]"
 if [ ! -d ./vendor/colorama ]; then
 	echocol "Getting colorama"
-	curl -sL https://codeload.github.com/tartley/colorama/tar.gz/0.3.7 | tar -C ./vendor --strip 1 --wildcards -zxvf - '*/colorama'
+	curl -sL https://github.com/tartley/colorama/archive/0.4.3.tar.gz | tar -C ./vendor --strip 1 --wildcards -zxvf - '*/colorama'
 fi
 if [ ! -r ./vendor/pytz ]; then
     echocol "Getting pytz"
-    curl -sL https://pypi.python.org/packages/42/00/5c89fc6c9b305df84def61863528e899e9dccb196f8438f6cbe960758fc5/pytz-2016.10.tar.gz | tar -C ./vendor --strip 1 --wildcards -zxvf - '*/pytz'
+    (cd vendor &&\
+        curl -sLO https://files.pythonhosted.org/packages/e7/f9/f0b53f88060247251bf481fa6ea62cd0d25bf1b11a87888e53ce5b7c8ad2/pytz-2019.3-py2.py3-none-any.whl &&\
+        unzip pytz-2019.3-py2.py3-none-any.whl &&\
+        rm -rf pytz-2019.3-py2.py3-none-any.whl pytz-2019.3.dist-info)
 fi
 if [ ! -r ./vendor/babel ]; then
 	echocol "Getting pybabel"
-	curl -sL https://github.com/python-babel/babel/archive/2.3.4.tar.gz | tar -C ./vendor --strip 1 --wildcards -zxvf - '*/babel' '*/scripts' '*/cldr'
-    (cd vendor && python scripts/download_import_cldr.py)
+	curl -sL https://github.com/python-babel/babel/archive/v2.7.0.tar.gz | tar -C ./vendor --strip 1 --wildcards -zxvf - '*/babel' '*/scripts' '*/cldr'
+    (cd vendor && python3 scripts/download_import_cldr.py)
     rm -rf vendor/{scripts,cldr,docs}
     (cd vendor/babel/locale-data && ls -1 | grep -vf ../../../etc/locales-tokeep.txt) | while read lang; do
          rm -f "vendor/babel/locale-data/$lang"

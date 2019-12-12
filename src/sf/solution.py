@@ -60,7 +60,7 @@ class Solution(object):
             if self.MAIN_SOURCE_RE.search(content): main_source.append((name, content))
         self.main_source = main_source[0] if len(main_source) == 1 else None
 
-    def run(self, args = None, input_data = None, timeout = 0): # I unicode, O utf-8
+    def run(self, args = None, input_data = None, timeout = 0): # I unicode, O utf-8
         input_data = input_data.encode(DEFAULT_ENCODING) if input_data is not None else None
         if not self.is_compiled(): raise NotCompiledException('Cannot find the compiled solution.')
         return execute(self.run_command, args, input_data, timeout = timeout, cwd = self.path)
