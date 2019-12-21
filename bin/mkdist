@@ -10,37 +10,23 @@ echocol "Setup dirs"
 
 tempdir=$(mktemp -d /tmp/sf-XXXXXXXXX) || exit 1
 
-mkdir -p $tempdir/dist
+mkdir -p "$tempdir/pip"
+mkdir -p "$tempdir/dist"
+rm -rf ./release
 mkdir -p ./release
-mkdir -p ./vendor
 
 echocol "Vendorizing [begin]"
-if [ ! -d ./vendor/colorama ]; then
-	echocol "Getting colorama"
-	curl -sL https://github.com/tartley/colorama/archive/0.4.3.tar.gz | tar -C ./vendor --strip 1 --wildcards -zxvf - '*/colorama'
-fi
-if [ ! -r ./vendor/pytz ]; then
-    echocol "Getting pytz"
-    (cd vendor &&\
-        curl -sLO https://files.pythonhosted.org/packages/e7/f9/f0b53f88060247251bf481fa6ea62cd0d25bf1b11a87888e53ce5b7c8ad2/pytz-2019.3-py2.py3-none-any.whl &&\
-        unzip pytz-2019.3-py2.py3-none-any.whl &&\
-        rm -rf pytz-2019.3-py2.py3-none-any.whl pytz-2019.3.dist-info)
-fi
-if [ ! -r ./vendor/babel ]; then
-	echocol "Getting pybabel"
-	curl -sL https://github.com/python-babel/babel/archive/v2.7.0.tar.gz | tar -C ./vendor --strip 1 --wildcards -zxvf - '*/babel' '*/scripts' '*/cldr'
-    (cd vendor && python3 scripts/download_import_cldr.py)
-    rm -rf vendor/{scripts,cldr,docs}
-    (cd vendor/babel/locale-data && ls -1 | grep -vf ../../../etc/locales-tokeep.txt) | while read lang; do
-         rm -f "vendor/babel/locale-data/$lang"
-    done
-fi
+
+python3 -m pip install --ignore-installed --install-option="--prefix=$tempdir/pip" colorama pytz Babel 2>&1
+
+rm -rf "$tempdir/pip/lib/python3.7/site-packages/"*.egg-info
+cp -rv "$tempdir/pip/lib/python3.7/site-packages/"* "$tempdir/dist"
+
 echocol "Vendorizing [end]"
 
 echocol "Copying source files to dist"
 
-cp -rv ./src/{sf,__main__.py} $tempdir/dist
-cp -rv ./vendor/* $tempdir/dist
+cp -rv ./src/{sf,__main__.py} "$tempdir/dist"
 
 echocol "Removing stale complied files"
 
@@ -52,15 +38,14 @@ mkdir $tempdir/dist/sf/mos
 for po in ./src/pos/*.po; do
 	bn=${po##*/}
 	mo=$tempdir/dist/sf/mos/${bn%.po}.mo
-	PYTHONPATH=./vendor python3 -m babel.messages.frontend compile -f -i $po -o $mo 2>&1
+	PYTHONPATH="$tempdir/pip/lib/python3.7/site-packages/" python3 -m babel.messages.frontend compile -f -i $po -o $mo 2>&1
 done
 
 echocol "Preparing zip file"
 
-rm -f $(pwd)/release/sf
-python3 -m zipapp -p '/usr/bin/env python3' $tempdir/dist -o ./release/sf
+python3 -m zipapp -p '/usr/bin/env python3' "$tempdir/dist" -o ./release/sf
 
-rm -rf $tempdir
+rm -rf "$tempdir"
 
 echocol "Built version is"
 
