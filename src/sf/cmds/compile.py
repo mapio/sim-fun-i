@@ -20,7 +20,7 @@ def detect_and_compile(path, compile = True, quiet = False):
         result = solution.compile()
         if result.returncode:
             stderr.write(Fore.RED + _('Compilation errors encountered:\n') + Style.RESET_ALL)
-            stderr.write(result.stderr.decode('utf-8'))
+            stderr.write(result.stderr)
             exit(1)
         if not quiet: stderr.write(Fore.BLUE + _('Succesfully compiled sources: {}\n').format(', '.join(solution.sources)) + Style.RESET_ALL)
     return solution

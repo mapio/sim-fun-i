@@ -17,13 +17,6 @@ from queue import Empty
 from sf import DEFAULT_ENCODING, TEST_TIMEOUT, MAX_BYTES_READ, WronglyEncodedFile
 from sf.solution import ExecutionException
 
-def _encode(u):
-    if u is None: return None
-    return u.encode(DEFAULT_ENCODING)
-
-def _decode(s):
-    return s.decode(DEFAULT_ENCODING)
-
 def _normalized_lines(u):
     if u is None: return ''
     if not u.endswith('\n'): u += '\n'
@@ -57,18 +50,12 @@ class TestCase(object):
     TEST_NUM_RE = re.compile(r'(?:{})-(.+)\.txt'.format('|'.join(KINDS)))
 
     @staticmethod
-    def u2args(u):
-        if u:
-            return list(map(_decode, split(_encode(u), posix=True)))
-        else:
-            return None
+    def str2args(s):
+        return list(split(s, posix=True)) if s is not None else None
 
     @staticmethod
-    def args2u(args):
-        if args:
-            return _decode(' '.join(map(quote, list(map(_encode, args)))) + '\n')
-        else:
-            return None
+    def args2str(args):
+        return (' '.join(map(quote, args)) + '\n') if args is not None else None
 
     def __init__(self, name, path = None):
         self.name = name
@@ -82,7 +69,7 @@ class TestCase(object):
                     with io.open(case_path, 'r', encoding = DEFAULT_ENCODING) as f: data = f.read(MAX_BYTES_READ)
                 except UnicodeDecodeError:
                     raise WronglyEncodedFile(case_path)
-                if kind == 'args': data = TestCase.u2args(data)
+                if kind == 'args': data = TestCase.str2args(data)
             else:
                 data = None
             setattr(self, kind, data)
@@ -93,22 +80,22 @@ class TestCase(object):
         for kind in TestCase.KINDS:
             try:
                 data = dct[kind]
-                if kind == 'args': data = TestCase.u2args(data)
+                if kind == 'args': data = TestCase.str2args(data)
                 setattr(tc, kind, data)
             except KeyError:
                 pass
         return tc
 
-    def _fill(self, solution, kind, timeout = 0):
+    def _fill(self, solution, kind, timeout = None):
         setattr(self, kind, None)
-        result = solution.run(self.args, self.input, timeout) # should we encode/decode here?
+        result = solution.run(self.args, self.input, timeout)
         if result.exception:
             raise result.exception
         if result.returncode:
             raise ExecutionException('Exit status: {} (non-zero), errors: "{}"'.format(result.returncode, result.stderr))
-        setattr(self, kind, _decode(result.stdout))
+        setattr(self, kind, result.stdout)
 
-    def fill_expected(self, solution, timeout = 0):
+    def fill_expected(self, solution, timeout = None):
         self._fill(solution, 'expected', timeout)
         self.errors = None
         self.diffs = None
@@ -139,7 +126,7 @@ class TestCase(object):
                     os.unlink(case_path)
                     written.append('- {}'.format(basename(case_path)))
                 continue
-            if kind == 'args': data = TestCase.args2u(data)
+            if kind == 'args': data = TestCase.args2str(data)
             if overwrite or not isfile(case_path):
                 try:
                     with io.open(case_path, 'w', encoding = DEFAULT_ENCODING) as f: f.write(data)
@@ -154,15 +141,15 @@ class TestCase(object):
         for kind in TestCase.KINDS:
             if kind in kinds_to_skip: continue
             data = getattr(self, kind)
-            if kind == 'args': data = TestCase.args2u(data)
+            if kind == 'args': data = TestCase.args2str(data)
             result[kind] = data
         return result
 
     def __str__(self):
         parts = [ 'Name: ' + self.name]
         if self.args is not None:
-            parts.append('Args: ' + ', '.join(map(_encode, self.args)))
-        parts.extend('{}:\n{}'.format(kind.capitalize(), _encode(getattr(self, kind)).rstrip()) for kind in TestCase.KINDS[1:] if getattr(self,kind) is not None)
+            parts.append('Args: ' + ', '.join(self.args))
+        parts.extend('{}:\n{}'.format(kind.capitalize(), getattr(self, kind).rstrip()) for kind in TestCase.KINDS[1:] if getattr(self,kind) is not None)
         return '\n'.join(parts)
 
 class TestCases(Mapping):
@@ -202,7 +189,7 @@ class TestCases(Mapping):
             n += 1
         return n
 
-    def fill_expected(self, solution, timeout = 0):
+    def fill_expected(self, solution, timeout = None):
         for case in list(self.cases.values()):
             case.fill_expected(solution, timeout)
 

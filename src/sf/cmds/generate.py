@@ -19,7 +19,7 @@ def main():
     parser.add_argument('--cases-dir', '-c', help = 'The directory where the test cases are to be found.')
     parser.add_argument('--expected-dir', '-e', help = 'The direcotry where to write the generated expected output files.')
     parser.add_argument('--no-overwrite', '-n', help = 'Whether to overwrite the expected output files, if present.', default = False, action = 'store_true')
-    parser.add_argument('--timeout', '-t', help = 'The time allowed for a case generation (default: 0 meaning no timeout).', default = 0)
+    parser.add_argument('--timeout', '-t', help = 'The time allowed for a case generation (default: None meaning no timeout).', default = None)
     parser.add_argument('--verbose', '-v', help = 'Whether to give verbose output.', default = False, action = 'store_true')
     args = parser.parse_args()
     if args.cases_dir is None: args.cases_dir = args.solution_dir
@@ -29,7 +29,7 @@ def main():
 
     cases = TestCases(args.cases_dir)
     try:
-        cases.fill_expected(solution, int(args.timeout))
+        cases.fill_expected(solution, int(args.timeout) if args.timeout is not None else None)
     except ExecutionException as e:
         stderr.write(Fore.RED + _('Execution returned the following errors:\n') + Style.RESET_ALL)
         stderr.write(str(e)+'\n')
