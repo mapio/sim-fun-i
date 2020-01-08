@@ -30,7 +30,7 @@ cp -rv ./src/{sf,__main__.py} "$tempdir/dist"
 
 echocol "Removing stale complied files"
 
-find $tempdir/dist -name __pycache__ -prune -exec rm -rf {} \;
+find "$tempdir/dist" -name __pycache__ -prune -exec rm -rf {} \;
 
 echocol "Compiling language files"
 
