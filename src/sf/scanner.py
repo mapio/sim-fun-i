@@ -1,8 +1,7 @@
-import io
 from operator import itemgetter
 from json import loads
 
-from sf import DEFAULT_ENCODING, WronglyEncodedFile
+from sf import deread
 from tm.mkresults import TristoMietitoreScanner
 
 class Scanner(TristoMietitoreScanner):
@@ -12,11 +11,7 @@ class Scanner(TristoMietitoreScanner):
     CASES_PATTERN = r'(?P<uid>.*)/latest/TEST-(?P<exercise>.+)\.(?P<case>json)$'
 
     def cases_reader(self, path):
-        try:
-            with io.open(path, 'r', encoding = DEFAULT_ENCODING) as f: cases = loads(f.read())
-        except UnicodeDecodeError:
-            raise WronglyEncodedFile(path)
-        return cases
+        return loads(deread(path))
 
     def sort(self):
         for res in self.results:

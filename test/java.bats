@@ -112,7 +112,7 @@ teardown() {
   [[ ${lines[11]} =~ .*"Case 2 returned the following diffs:".* ]]
 }
 
-@test "testing timeout" {
+@test "testing 'timeout' (a forever loop)" {
   cd $FIXTURES/java/timeout
   run sf test -f
   [ "$status" -eq 0 ]

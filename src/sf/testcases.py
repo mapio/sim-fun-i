@@ -1,4 +1,3 @@
-import io
 from collections import Mapping
 from concurrent.futures import ThreadPoolExecutor, TimeoutError
 from difflib import context_diff, IS_CHARACTER_JUNK
@@ -14,7 +13,7 @@ from shlex import split
 import sys
 from textwrap import dedent
 from queue import Empty
-from sf import DEFAULT_ENCODING, TEST_TIMEOUT, MAX_BYTES_READ, WronglyEncodedFile
+from sf import DEFAULT_ENCODING, TEST_TIMEOUT, MAX_BYTES_READ, deread
 from sf.solution import ExecutionException
 
 def _normalized_lines(u):
@@ -62,10 +61,7 @@ class TestCase(object):
         for kind in TestCase.KINDS:
             case_path = join(path, TestCase.FORMATS[kind].format(name))
             if isfile(case_path):
-                try:
-                    with io.open(case_path, 'r', encoding = DEFAULT_ENCODING) as f: data = f.read(MAX_BYTES_READ)
-                except UnicodeDecodeError:
-                    raise WronglyEncodedFile(case_path)
+                data = deread(case_path, MAX_BYTES_READ)
                 if kind == 'args': data = TestCase.str2args(data)
             else:
                 data = None
@@ -126,7 +122,7 @@ class TestCase(object):
             if kind == 'args': data = TestCase.args2str(data)
             if overwrite or not isfile(case_path):
                 try:
-                    with io.open(case_path, 'w', encoding = DEFAULT_ENCODING) as f: f.write(data)
+                    with open(case_path, 'w', encoding = DEFAULT_ENCODING, errors = 'ignore') as f: f.write(data)
                     written.append('+ {}'.format(basename(case_path)))
                 except IOError as e:
                     if e.errno == EACCES and isfile(case_path): pass
