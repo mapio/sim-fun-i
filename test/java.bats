@@ -111,3 +111,12 @@ teardown() {
   [[ ${lines[3]} =~ .*"Case 1 returned the following diffs:".* ]]
   [[ ${lines[11]} =~ .*"Case 2 returned the following diffs:".* ]]
 }
+
+@test "testing timeout" {
+  cd $FIXTURES/java/timeout
+  run sf test -f
+  [ "$status" -eq 0 ]
+  [ -r errors-1.txt ]
+  [[ ${lines[0]} =~ .*"Using processor: JavaSolution".* ]]
+  [[ ${lines[4]} =~ .*"[TimeoutException] 1s timeout exceeded".* ]]
+}

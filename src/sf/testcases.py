@@ -1,5 +1,6 @@
 import io
 from collections import Mapping
+from concurrent.futures import ThreadPoolExecutor, TimeoutError
 from difflib import context_diff, IS_CHARACTER_JUNK
 from errno import EACCES
 from glob import glob
@@ -12,7 +13,6 @@ import re
 from shlex import split
 import sys
 from textwrap import dedent
-from multiprocessing import Process, Queue
 from queue import Empty
 from sf import DEFAULT_ENCODING, TEST_TIMEOUT, MAX_BYTES_READ, WronglyEncodedFile
 from sf.solution import ExecutionException
@@ -23,23 +23,20 @@ def _normalized_lines(u):
     return list([_.rstrip() + '\n' for _ in dedent(u).splitlines(True)])
 
 def timed_diffs(name, expected, actual):
-    def _diffs(name, expected, actual, queue):
-        expected = _normalized_lines(expected)
-        actual = _normalized_lines(actual)
-        expected_name = TestCase.FORMATS['expected'].format(name)
-        actual_name = TestCase.FORMATS['actual'].format(name)
-        diffs = list(context_diff(expected, actual, expected_name, actual_name))
-        queue.put(''.join(diffs) if diffs else None)
-    q = Queue()
-    p = Process(target = _diffs, args = (name, expected, actual, q))
-    p.start()
-    try:
-        diffs = q.get(True, TEST_TIMEOUT)
-    except Empty:
-        p.terminate()
+    def _diffs():
+        diffs = list(context_diff(
+          _normalized_lines(expected),
+          _normalized_lines(actual),
+          TestCase.FORMATS['expected'].format(name),
+          TestCase.FORMATS['actual'].format(name)
+        ))
+        return ''.join(diffs) if diffs else None
+    with ThreadPoolExecutor(max_workers=1) as tpe:
+      diffs = tpe.submit(_diffs)
+      try:
+        return diffs.result(TEST_TIMEOUT)
+      except TimeoutError:
         return '<<DIFFS TIMEOUT>>\n'
-    p.join()
-    return diffs
 
 
 class TestCase(object):
