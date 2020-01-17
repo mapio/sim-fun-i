@@ -5,8 +5,8 @@ from sys import stderr, exit
 
 from colorama import Fore, Style
 
-from sf.cmds.compile import detect_and_compile
-from sf.solution import ExecutionException
+from sf.cmds.compile import compile
+from sf.solution import ExecutionException, autodetect_solution
 from sf.testcases import TestCases
 
 from sf.zipgettext import DEFAULT_GETTEXT
@@ -25,7 +25,11 @@ def main():
     if args.cases_dir is None: args.cases_dir = args.solution_dir
     if args.expected_dir is None: args.expected_dir = args.cases_dir
 
-    solution = detect_and_compile(args.solution_dir, args.force_compile)
+    solution = autodetect_solution(args.solution_dir)
+    if solution.run_command is None:
+      stderr.write(Fore.RED + _('No solution to run!\n') + Style.RESET_ALL)
+      exit(1)
+    if args.force_compile: compile(solution)
 
     cases = TestCases(args.cases_dir)
     try:

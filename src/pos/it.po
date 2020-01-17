@@ -6,10 +6,10 @@
 #, fuzzy
 msgid ""
 msgstr ""
-"Project-Id-Version: SimFunY 0.1beta\n"
+"Project-Id-Version: sim-fun-i 1.1.0\n"
 "Report-Msgid-Bugs-To: massimo.santini@unimi.it\n"
-"POT-Creation-Date: 2017-01-23 21:46+0100\n"
-"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"POT-Creation-Date: 2020-01-17 01:27+0100\n"
+"PO-Revision-Date: 2020-01-17 01:27+0100\n"
 "Last-Translator: Massimo Santini <massimo.santini@unimi.it>\n"
 "Language: it\n"
 "Language-Team: it <LL@li.org>\n"
@@ -17,7 +17,7 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Generated-By: Babel 2.3.4\n"
+"Generated-By: Babel 2.7.0\n"
 
 #: src/sf/cmds/__init__.py:16
 msgid "The following error occurred: "
@@ -33,64 +33,69 @@ msgstr "Versione: {}\n"
 
 #: src/sf/cmds/__init__.py:26
 msgid "Unknown subcommand {}; available subcommsands: {}\n"
-msgstr "Comando sconoscituo {}; comandi disponibili: {}\n"
+msgstr "Comando sconoscituo {}; comandi disponibili: {}\n"
 
 #: src/sf/cmds/__init__.py:31
 msgid "Premature exit!\n"
 msgstr "Arresto forzato!\n"
 
-#: src/sf/cmds/compile.py:16
-msgid "No main source file found!\n"
-msgstr "Nessun file sorgente principale trovato!\n"
+#: src/sf/cmds/compile.py:15
+msgid "No source file found!\n"
+msgstr "Nessn sorgente trovato"
 
-#: src/sf/cmds/compile.py:18
+#: src/sf/cmds/compile.py:17
 msgid "Using processor: {}\n"
 msgstr "Processore utilizzato: {}\n"
 
-#: src/sf/cmds/compile.py:22
+#: src/sf/cmds/compile.py:21
 msgid "Compilation errors encountered:\n"
 msgstr "Sono presenti errori di compilazione:\n"
 
-#: src/sf/cmds/compile.py:25
+#: src/sf/cmds/compile.py:24
 msgid "Succesfully compiled sources: {}\n"
 msgstr "Sorgenti compilati con successo: {}\n"
 
-#: src/sf/cmds/generate.py:33 src/sf/cmds/test.py:33
+#: src/sf/cmds/generate.py:30 src/sf/cmds/run.py:24 src/sf/cmds/test.py:29
+msgid "No solution to run!\n"
+msgstr "Nessuna soluzione da eseguire"
+
+#: src/sf/cmds/generate.py:38 src/sf/cmds/test.py:37
 msgid "Execution returned the following errors:\n"
 msgstr "L'esecuzione ha dato i seguenti errori:\n"
 
-#: src/sf/cmds/generate.py:36
+#: src/sf/cmds/generate.py:41
 msgid "Generated expected output for cases: {}\n"
 msgstr "Output atteso generato per i casi: {}\n"
 
-#: src/sf/cmds/generate.py:41 src/sf/cmds/test.py:41
+#: src/sf/cmds/generate.py:46 src/sf/cmds/test.py:45
 msgid "Modifiled files:\n"
 msgstr "File modificati:\n"
 
-#: src/sf/cmds/generate.py:44 src/sf/cmds/test.py:44
+#: src/sf/cmds/generate.py:49 src/sf/cmds/test.py:48
 msgid "No file has been modified!\n"
 msgstr "Nessun file è stato modificato!\n"
 
-#: src/sf/cmds/run.py:26
+#: src/sf/cmds/run.py:32
 msgid "Exception raised during execution:\n"
 msgstr "Si è presentata una eccezione durante l'esecuzione:\n"
 
-#: src/sf/cmds/run.py:30
+#: src/sf/cmds/run.py:36
 msgid "Execution returned non-zero exit code:\n"
 msgstr "L'esecuzione ha dato un valor di uscita non nullo:\n"
 
-#: src/sf/cmds/test.py:36
+#: src/sf/cmds/test.py:40
 msgid "Generated actual output for cases: {}\n"
 msgstr "Output dello studente generati per i casi: {}\n"
 
-#: src/sf/cmds/test.py:51
+#: src/sf/cmds/test.py:55
 msgid "Case {} returned the following errors:\n"
 msgstr "L'esempio {} ha restituito i seguenti errori:\n"
 
-#: src/sf/cmds/test.py:55
+#: src/sf/cmds/test.py:59
 msgid "Case {} returned the following diffs:\n"
 msgstr "L'esempio {} ha restituito le seguenti differenze:\n"
 
-#: src/sf/cmds/test.py:57
+#: src/sf/cmds/test.py:61
 msgid "Cases run with no diffs or errors.\n"
 msgstr "Gli esempi sono stati eseguiti senza errori, o differenze.\n"
+

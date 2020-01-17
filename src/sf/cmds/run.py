@@ -5,7 +5,8 @@ from sys import stderr, exit
 
 from colorama import Fore, Style
 
-from sf.cmds.compile import detect_and_compile
+from sf.cmds.compile import compile
+from sf.solution import autodetect_solution
 
 from sf.zipgettext import DEFAULT_GETTEXT
 _ = DEFAULT_GETTEXT
@@ -17,6 +18,12 @@ def main():
     parser.add_argument('--quiet', '-q', help = 'Whether to be more silent.', default = False, action = 'store_true')
     parser.add_argument('args', nargs = REMAINDER)
     args = parser.parse_args()
+
+    solution = autodetect_solution(args.solution_dir)
+    if solution.run_command is None:
+      stderr.write(Fore.RED + _('No solution to run!\n') + Style.RESET_ALL)
+      exit(1)
+    if args.force_compile: compile(solution, args.quiet)
 
     solution = detect_and_compile(args.solution_dir, args.force_compile, args.quiet)
 

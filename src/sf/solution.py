@@ -60,10 +60,11 @@ class NoSolution(Solution):
         self.NAME = type(self).__name__
         self.sources = None
         self.main_source = None
+        self.run_command = None
 
 from sf.lang import JavaTestRunnerSolution, JavaSolution, CSolution, ShSolution
 
-def autodetect_solution(path = '.', allow_unexecutable = False):
+def autodetect_solution(path = '.', allow_unexecutable = True):
     for cls in JavaTestRunnerSolution, JavaSolution, CSolution, ShSolution:
         solution = cls(path)
         if (solution.sources and allow_unexecutable) or (solution.run_command is not None): return solution

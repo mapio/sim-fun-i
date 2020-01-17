@@ -8,7 +8,7 @@ teardown() {
   cd $FIXTURES/empty
   run sf compile
   [ "$status" -eq 1 ]
-  [[ ${lines[0]} =~ .*"No main source file found".* ]]
+  [[ ${lines[0]} =~ .*"No source file found".* ]]
 }
 
 @test "compiling 'sum' (a correct program)" {
@@ -34,11 +34,11 @@ teardown() {
   [[ ${lines[1]} =~ .*"Succesfully compiled sources: Solution.java".* ]]
 }
 
-@test "compiling 'sum_nomain' (public class, no main method)" {
+@test "running 'sum_nomain' (public class, no main method)" {
   cd $FIXTURES/java/sum_nomain
-  run sf compile
+  run sf run -f
   [ "$status" -eq 1 ]
-  [[ ${lines[0]} =~ .*"No main source file found".* ]]
+  [[ ${lines[0]} =~ .*"No solution to run".* ]]
 }
 
 @test "compiling 'sum_testrunner' (a correct program, with a TestRunner class)" {
@@ -48,13 +48,12 @@ teardown() {
   [[ ${lines[0]} =~ .*"Using processor: JavaTestRunnerSolution".* ]]
 }
 
-@test "compiling 'sum_faketestrunner' (a solution called TestRunner, but not actually a JavaTestRunnerSolution)" {
+@test "running 'sum_faketestrunner' (a solution called TestRunner, but not actually a JavaTestRunnerSolution)" {
   cd $FIXTURES/java/sum_faketestrunner
-  run sf compile
+  run sf run -f
   [ "$status" -eq 1 ]
-  [[ ${lines[0]} =~ .*"No main source file found".* ]]
+  [[ ${lines[0]} =~ .*"No solution to run".* ]]
 }
-
 
 @test "generating 'sum' output" {
   cd $FIXTURES/java/sum
@@ -119,4 +118,12 @@ teardown() {
   [ -r errors-1.txt ]
   [[ ${lines[0]} =~ .*"Using processor: JavaSolution".* ]]
   [[ ${lines[4]} =~ .*"[TimeoutException] 1s timeout exceeded".* ]]
+}
+
+@test "compiling 'no_main' (a bounch of classes without a main method)" {
+  cd $FIXTURES/java/timeout
+  run sf compile
+  [ "$status" -eq 0 ]
+  [[ ${lines[0]} =~ .*"Using processor: JavaSolution".* ]]
+  [[ ${lines[1]} =~ .*"Succesfully compiled sources".* ]]
 }
