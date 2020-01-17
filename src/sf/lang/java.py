@@ -22,16 +22,18 @@ class JavaSolution(Solution):
             main_class = guessClass(self.main_source[1])
             if main_class != 'TestRunner':
                 self.run_command = ['java', '-Duser.language=ROOT', main_class]
+            else:
+                self.main_source = None
     def compile(self):
         return execute(['javac'], args = self.sources, cwd = self.path)
     def is_compiled(self):
-        return all(Path(_).with_suffix('.class').is_file() for _ in self.sources)
+        return all((Path(self.path) / _).with_suffix('.class').is_file() for _ in self.sources)
 
 class JavaTestRunnerSolution(JavaSolution):
     def __init__(self, path):
         super(JavaTestRunnerSolution, self).__init__(path)
         self.run_command = None
-        if len(self.sources) >= 2:
+        if self.sources and len(self.sources) >= 2:
             for name in self.sources:
                 if name == 'TestRunner.java':
                     self.main_source = (name, deread(str(Path(path)/ name)))
