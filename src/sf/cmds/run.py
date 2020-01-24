@@ -25,8 +25,6 @@ def main():
       exit(1)
     if args.force_compile: compile(solution, args.quiet)
 
-    solution = detect_and_compile(args.solution_dir, args.force_compile, args.quiet)
-
     result = solution.run(args.args)
     if result.exception:
         stderr.write(Fore.RED + _('Exception raised during execution:\n') + Style.RESET_ALL)
