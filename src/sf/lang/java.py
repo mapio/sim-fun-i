@@ -25,7 +25,7 @@ class JavaSolution(Solution):
             else:
                 self.main_source = None
     def compile(self):
-        return execute(['javac'], args = self.sources, cwd = self.path)
+        return execute(['javac', '-d', '.'], args = self.sources, cwd = self.path)
     def is_compiled(self):
         return all((Path(self.path) / _).with_suffix('.class').is_file() for _ in self.sources)
 
