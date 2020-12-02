@@ -4,7 +4,7 @@ from pathlib import Path
 DEFAULT_ENCODING = 'utf-8'
 MAX_BYTES_READ = 1048576
 TEST_TIMEOUT = int(environ.get('SIMFUNI_TIMEOUT', 1))
-VERSION = '1.1.4'
+VERSION = '1.1.5'
 
 def deread(path, max_bytes = None):
   with open(path, 'r', encoding = DEFAULT_ENCODING, errors = 'ignore') as f:

@@ -21,7 +21,7 @@ class JavaSolution(Solution):
         if self.main_source:
             main_class = guessClass(self.main_source[1])
             if main_class != 'TestRunner':
-                self.run_command = ['java', '-Duser.language=ROOT', main_class]
+                self.run_command = ['java', '-ea', '-Duser.language=ROOT', main_class]
             else:
                 self.main_source = None
     def compile(self):
@@ -37,7 +37,7 @@ class JavaTestRunnerSolution(JavaSolution):
             for name in self.sources:
                 if name == 'TestRunner.java':
                     self.main_source = (name, deread(str(Path(path)/ name)))
-                    self.run_command = ['java', '-Duser.language=ROOT', 'TestRunner']
+                    self.run_command = ['java', '-ea', '-Duser.language=ROOT', 'TestRunner']
                     break
         if self.run_command is None:
             self.sources, self.main_source = None, None
